@@ -3,8 +3,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
     }
 }
-rootProject.name = "Sunflower"
-include ':app'
+rootProject.name = "Sunflower" // 앱 이름
+include ':app' // 모듈 이름

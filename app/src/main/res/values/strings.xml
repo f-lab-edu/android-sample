@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Sunflower</string>
+    <string name="available_plants">Available Plants</string>
 </resources>
