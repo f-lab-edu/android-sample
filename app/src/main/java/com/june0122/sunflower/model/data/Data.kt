@@ -1,3 +1,7 @@
 package com.june0122.sunflower.model.data
 
-data class Plant(val image: String, val name: String)
+data class Plant(
+    val imageUrl: String,
+    val name: String,
+    val description: String,
+    )
