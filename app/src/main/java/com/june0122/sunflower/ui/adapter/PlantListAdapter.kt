@@ -6,8 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.ui.viewholder.PlantListViewHolder
+import com.june0122.sunflower.utils.PlantSelectedListener
 
-class PlantListAdapter : RecyclerView.Adapter<PlantListViewHolder>() {
+class PlantListAdapter(private val listener: PlantSelectedListener) : RecyclerView.Adapter<PlantListViewHolder>() {
     var items = arrayListOf(
         Plant(
             imageUrl = "https://www.thespruce.com/thmb/tFrVqLO3iqBY5hbJiyXGGbyoYUU=/941x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/grow-alocasia-indoors-1902735-03-e84e0164715746a0aee5b1a83aefe4ca.jpg",
@@ -91,8 +92,9 @@ class PlantListAdapter : RecyclerView.Adapter<PlantListViewHolder>() {
         val model = items[position]
 
         with(holder.itemView) {
-            val plantName = findViewById<TextView>(R.id.plantNameTextView)
+            val plantName = findViewById<TextView>(R.id.tv_plant_name)
             plantName.text = model.name
+            setOnClickListener { listener.onPlantSelected(position) }
         }
     }
 }
