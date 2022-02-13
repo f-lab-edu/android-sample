@@ -39,11 +39,11 @@ class PlantListFragment : Fragment() {
                         val plantData = plantListAdapter.items[position]
                         val plantDetailFragment = PlantDetailFragment.newInstance(plantData)
 
-                        activity?.supportFragmentManager
-                            ?.beginTransaction()
-                            ?.replace(R.id.container, plantDetailFragment)
-                            ?.addToBackStack(null)
-                            ?.commit()
+                        requireActivity().supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.container, plantDetailFragment)
+                            .addToBackStack(null)
+                            .commit()
                     }
                 }
             )
