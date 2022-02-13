@@ -13,10 +13,6 @@ import com.june0122.sunflower.utils.ListItemClickListener
 import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
 
 class PlantListFragment : Fragment() {
-    companion object {
-        fun newInstance() = PlantListFragment() // 동반 객체의 newInstance() 사용 시의 이점은?
-    }
-
     private val plantListAdapter = PlantListAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -40,10 +36,9 @@ class PlantListFragment : Fragment() {
                 recyclerView,
                 object : ListItemClickListener.OnItemClickListener {
                     override fun onItemClick(view: View, position: Int) {
-                        val plantDetailFragment = PlantDetailFragment()
                         val plantData = plantListAdapter.items[position]
+                        val plantDetailFragment = PlantDetailFragment.newInstance(plantData)
 
-                        plantDetailFragment.receivePlantData(plantData)
                         activity?.supportFragmentManager
                             ?.beginTransaction()
                             ?.replace(R.id.container, plantDetailFragment)
@@ -53,6 +48,5 @@ class PlantListFragment : Fragment() {
                 }
             )
         )
-
     }
 }
