@@ -27,7 +27,7 @@ class PlantListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val plantListLayoutManager = GridLayoutManager(context, 2)
-        val recyclerView = view.findViewById<RecyclerView>(R.id.plantListRecyclerView).apply {
+        val recyclerView = view.findViewById<RecyclerView>(R.id.rv_plant_list).apply {
             adapter = plantListAdapter
             layoutManager = plantListLayoutManager
             addItemDecoration(PlantListItemDecoration(2, 60, true))
@@ -40,7 +40,7 @@ class PlantListFragment : Fragment() {
                 recyclerView,
                 object : ListItemClickListener.OnItemClickListener {
                     override fun onItemClick(view: View, position: Int) {
-                        val plantDetailFragment = PlantDetailFragment.newInstance()
+                        val plantDetailFragment = PlantDetailFragment()
                         val plantData = plantListAdapter.items[position]
 
                         plantDetailFragment.receivePlantData(plantData)
