@@ -1,7 +1,7 @@
 package com.june0122.sunflower.ui.adapter
 
+import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.model.data.Plant
@@ -84,17 +84,17 @@ class PlantListAdapter(private val listener: PlantSelectedListener) : RecyclerVi
         ),
     )
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlantListViewHolder = PlantListViewHolder(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlantListViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_plant_list, parent, false)
+
+        return PlantListViewHolder(view, listener)
+    }
 
     override fun getItemCount(): Int = items.count()
 
     override fun onBindViewHolder(holder: PlantListViewHolder, position: Int) {
-        val model = items[position]
+        val plant = items[holder.absoluteAdapterPosition]
 
-        with(holder.itemView) {
-            val plantName = findViewById<TextView>(R.id.tv_plant_name)
-            plantName.text = model.name
-            setOnClickListener { listener.onPlantSelected(position) }
-        }
+        holder.bind(plant)
     }
 }
