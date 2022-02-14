@@ -12,12 +12,12 @@ import com.june0122.sunflower.model.data.Plant
 private const val PLANT_DATA = "plant_data"
 
 class PlantDetailFragment : Fragment() {
-    lateinit var data: Plant
+    private lateinit var data: Plant
 
     companion object {
         fun newInstance(plantData: Plant): PlantDetailFragment {
             val args = Bundle().apply {
-                putSerializable(PLANT_DATA, plantData)
+                putParcelable(PLANT_DATA, plantData)
             }
 
             return PlantDetailFragment().apply {
@@ -28,7 +28,7 @@ class PlantDetailFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        data = arguments?.getSerializable(PLANT_DATA) as Plant
+        data = arguments?.getParcelable<Plant>(PLANT_DATA) as Plant
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
