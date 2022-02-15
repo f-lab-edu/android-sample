@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, PlantListFragment.newInstance())
+                .replace(R.id.container, PlantListFragment())
                 .commit() // commit, commitNow 등의 차이점?
         }
     }

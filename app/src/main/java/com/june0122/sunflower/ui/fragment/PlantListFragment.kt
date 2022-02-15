@@ -9,30 +9,36 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
+import com.june0122.sunflower.utils.PlantSelectedListener
 import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
 
 class PlantListFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = PlantListFragment()
-    }
-
-    private val plantListAdapter = PlantListAdapter()
-//    private lateinit var viewModel: MainViewModel
+    private lateinit var plantRecyclerView: RecyclerView
+    private lateinit var plantListAdapter: PlantListAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_plant_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_plant_list, container, false)
+
+        plantRecyclerView = view.findViewById(R.id.rv_plant_list)
+        plantRecyclerView.layoutManager = GridLayoutManager(context, 2)
+        plantRecyclerView.addItemDecoration(PlantListItemDecoration(2, 60, true))
+        plantListAdapter = PlantListAdapter { position ->
+            val plantData = plantListAdapter.items[position]
+            val plantDetailFragment = PlantDetailFragment.newInstance(plantData)
+
+            requireActivity().supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container, plantDetailFragment)
+                .addToBackStack(null)
+                .commit()
+        }
+        plantRecyclerView.adapter = plantListAdapter
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val plantListLayoutManager = GridLayoutManager(context, 2)
-        val recyclerView = view.findViewById<RecyclerView>(R.id.plantListRecyclerView).apply {
-            adapter = plantListAdapter
-            layoutManager = plantListLayoutManager
-            addItemDecoration(PlantListItemDecoration(2, 60, true))
-        }
-        plantListLayoutManager.orientation = GridLayoutManager.VERTICAL
     }
 }

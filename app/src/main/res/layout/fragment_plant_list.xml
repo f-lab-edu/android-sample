@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/ocean_green"
+    android:background="@color/sunflower_green_500"
     tools:context=".ui.fragment.PlantListFragment">
 
     <TextView
@@ -16,14 +16,14 @@
         android:layout_marginTop="24dp"
         android:layout_marginBottom="16dp"
         android:text="@string/available_plants"
-        android:textColor="@color/deep_forest_green"
+        android:textColor="@color/sunflower_green_900"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/plantListRecyclerView"
+        app:layout_constraintBottom_toTopOf="@+id/rv_plant_list"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/plantListRecyclerView"
+        android:id="@+id/rv_plant_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
