@@ -8,18 +8,21 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
+import com.june0122.sunflower.databinding.FragmentPlantListBinding
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
-import com.june0122.sunflower.utils.PlantSelectedListener
 import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
 
 class PlantListFragment : Fragment() {
+    private var _binding: FragmentPlantListBinding? = null
+    private val binding get() = _binding!!
     private lateinit var plantRecyclerView: RecyclerView
     private lateinit var plantListAdapter: PlantListAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = inflater.inflate(R.layout.fragment_plant_list, container, false)
+        _binding = FragmentPlantListBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        plantRecyclerView = view.findViewById(R.id.rv_plant_list)
+        plantRecyclerView = binding.rvPlantList
         plantRecyclerView.layoutManager = GridLayoutManager(context, 2)
         plantRecyclerView.addItemDecoration(PlantListItemDecoration(2, 60, true))
         plantListAdapter = PlantListAdapter { position ->
@@ -39,6 +42,10 @@ class PlantListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

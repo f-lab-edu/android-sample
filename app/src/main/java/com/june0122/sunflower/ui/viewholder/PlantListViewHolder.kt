@@ -1,18 +1,15 @@
 package com.june0122.sunflower.ui.viewholder
 
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Scale
-import com.june0122.sunflower.R
+import com.june0122.sunflower.databinding.ItemPlantListBinding
 import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.utils.PlantSelectedListener
 
-class PlantListViewHolder(view: View, listener: PlantSelectedListener) : RecyclerView.ViewHolder(view) {
-    private val plantNameTextView = itemView.findViewById<TextView>(R.id.tv_plant_name)
-    private val availablePlantImageView = itemView.findViewById<ImageView>(R.id.img_available_plant)
+class PlantListViewHolder(binding: ItemPlantListBinding, listener: PlantSelectedListener) : RecyclerView.ViewHolder(binding.root) {
+    private val plantNameTextView = binding.tvPlantName
+    private val availablePlantImageView = binding.imgAvailablePlant
 
     init {
         itemView.setOnClickListener { listener.onPlantSelected(absoluteAdapterPosition) }
