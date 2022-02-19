@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import coil.load
+import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.databinding.FragmentPlantDetailBinding
 import com.june0122.sunflower.model.data.Plant
 
@@ -49,6 +51,16 @@ class PlantDetailFragment : Fragment() {
         }
         binding.tvPlantName.text = data.name
         binding.tvDescription.text = data.description
+        binding.fabFavorite.setOnClickListener { fab ->
+            Snackbar.make(fab, "Added to bookmark", Snackbar.LENGTH_LONG)
+                .setAction("Action", null)
+                .show()
+
+            val layoutParams = fab.layoutParams as CoordinatorLayout.LayoutParams
+            layoutParams.anchorId = View.NO_ID
+            fab.layoutParams = layoutParams
+            fab.visibility = View.GONE
+        }
     }
 
     override fun onDestroyView() {
