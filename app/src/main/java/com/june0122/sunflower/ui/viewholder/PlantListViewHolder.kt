@@ -6,15 +6,19 @@ import coil.size.Scale
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.ItemPlantListBinding
 import com.june0122.sunflower.model.data.Plant
-import com.june0122.sunflower.utils.PlantSelectedListener
+import com.june0122.sunflower.utils.PlantClickListener
 
-class PlantListViewHolder(binding: ItemPlantListBinding, listener: PlantSelectedListener) :
+class PlantListViewHolder(binding: ItemPlantListBinding, listener: PlantClickListener) :
     RecyclerView.ViewHolder(binding.root) {
     private val plantNameTextView = binding.tvPlantName
     private val availablePlantImageView = binding.imgAvailablePlant
 
     init {
-        itemView.setOnClickListener { listener.onPlantSelected(absoluteAdapterPosition) }
+        itemView.setOnClickListener { listener.onPlantClick(absoluteAdapterPosition) }
+        itemView.setOnLongClickListener {
+            listener.onPlantLongClick(absoluteAdapterPosition)
+            return@setOnLongClickListener true
+        }
     }
 
     fun bind(plant: Plant) {
