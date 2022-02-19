@@ -35,8 +35,9 @@ class PlantDetailFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentPlantDetailBinding.inflate(inflater, container, false)
-        return binding.root
+        return FragmentPlantDetailBinding.inflate(inflater, container, false).also {
+            _binding = it
+        }.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
