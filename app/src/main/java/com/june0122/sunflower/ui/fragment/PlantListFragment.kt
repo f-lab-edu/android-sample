@@ -1,18 +1,25 @@
 package com.june0122.sunflower.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
+import com.june0122.sunflower.api.GithubService
 import com.june0122.sunflower.databinding.FragmentPlantListBinding
 import com.june0122.sunflower.model.data.Plant
+import com.june0122.sunflower.model.data.Users
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
 import com.june0122.sunflower.utils.PlantClickListener
 import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 private const val DIALOG_PLANT = "DialogPlant"
 
@@ -55,6 +62,8 @@ class PlantListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        getUserList()
+
         binding.fabAddPlant.setOnClickListener {
             val items = plantListAdapter.items
             // 데이터를 직접 입력해서 아이템을 추가하는 식으로 변경 예정
@@ -72,5 +81,36 @@ class PlantListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun getUserList() {
+        val userListCall: Call<Users> = GithubService.create().getUserList(query = "june", perPage = 20, page = 1)
+
+        userListCall.enqueue(object : Callback<Users> {
+            override fun onResponse(call: Call<Users>, response: Response<Users>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { users -> updateUserList(users) }
+                }
+            }
+
+            override fun onFailure(call: Call<Users>, t: Throwable) {
+                Toast.makeText(context, t.localizedMessage, Toast.LENGTH_SHORT).show()
+                Log.e("PlantList", "XXX - ${t.localizedMessage}")
+            }
+        })
+    }
+
+    private fun updateUserList(users: Users) {
+        val plantListItems = plantListAdapter.items
+        users.items.forEach {
+            plantListItems.add(
+                Plant(
+                    imageUrl = it.avatarUrl,
+                    name = it.login,
+                    description = ""
+                )
+            )
+        }
+        plantListAdapter.notifyItemRangeInserted(0, users.items.size)
     }
 }
