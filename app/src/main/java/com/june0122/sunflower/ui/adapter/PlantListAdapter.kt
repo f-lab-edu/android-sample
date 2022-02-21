@@ -55,6 +55,7 @@ class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.
     fun deleteProgress() {
         if (items.last().description == STATUS_LOADING) {
             items.removeAt(items.lastIndex)
+            notifyItemRemoved(items.lastIndex + 1)
         }
     }
 }
