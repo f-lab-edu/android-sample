@@ -71,10 +71,13 @@ class PlantListFragment : Fragment() {
         plantRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
+                // 마지막 아이템이 완전히 보일 때 해당 포지션을 반환
                 val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
 
                 if (!binding.rvPlantList.canScrollVertically(1) && lastVisibleItemPosition == itemCount) {
-                    plantListAdapter.deleteProgress()
+                    recyclerView.post {
+                        plantListAdapter.deleteProgress()
+                    }
                     currentPage++
                     if (currentPage <= lastPage) getUserList()
                 }
@@ -117,6 +120,8 @@ class PlantListFragment : Fragment() {
             override fun onResponse(call: Call<Users>, response: Response<Users>) {
                 if (response.isSuccessful) {
                     response.body()?.let { users -> updateUserList(users) }
+                } else if (response.code() == 403) {
+                    Toast.makeText(context, "API rate limit exceeded.", Toast.LENGTH_SHORT).show()
                 }
             }
 
