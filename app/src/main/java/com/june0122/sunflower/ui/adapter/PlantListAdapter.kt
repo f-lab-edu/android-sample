@@ -20,7 +20,8 @@ class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.
      * 2. item 리스트 변수는 private으로 선언
      * 3. item이 추가되었을 경우 리스트 갱신이 동작하도록 구현
      */
-    val items = mutableListOf<Plant>()
+    private val _items = mutableListOf<Plant>()
+    val items get() = _items
 
     override fun getItemViewType(position: Int): Int {
         return when(items[position].description) {
@@ -44,18 +45,11 @@ class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.
         }
     }
 
-    override fun getItemCount(): Int = items.count()
+    override fun getItemCount(): Int = _items.count()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val plant = items[holder.absoluteAdapterPosition]
+        val plant = _items[holder.absoluteAdapterPosition]
 
         if (holder is PlantListViewHolder) holder.bind(plant)
-    }
-
-    fun deleteProgress() {
-        if (items.last().description == STATUS_LOADING) {
-            items.removeAt(items.lastIndex)
-            notifyItemRemoved(items.lastIndex + 1)
-        }
     }
 }
