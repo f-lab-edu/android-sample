@@ -1,6 +1,5 @@
 package com.june0122.sunflower.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -31,6 +30,7 @@ class PlantListViewModel(
     private var currentPage = 1
     private var perPage = 20
     private var lastPage = 0
+    private var progressPosition = 0
 
     override fun onPlantClick(position: Int) {
         val item = plantListAdapter.items[position]
@@ -48,19 +48,23 @@ class PlantListViewModel(
     }
 
     fun canLoaded(canScrollVertically: Boolean, lastVisibleItemPosition: Int): Boolean =
-        canScrollVertically && lastVisibleItemPosition == itemCount
+        canScrollVertically && lastVisibleItemPosition == itemCount - 1
 
     fun loadNextPage() {
-        deleteProgress()
+        progressPosition = itemCount
+
+        if (currentPage < lastPage) {
+            items.add(Plant("", "", STATUS_LOADING)) // progressbar 보여주기 위한 아이템 1개 추가
+            plantListAdapter.notifyItemInserted(progressPosition)
+        }
+
         currentPage++
         if (currentPage <= lastPage) getUserList()
     }
 
-    private fun deleteProgress() {
-        if (items.last().description == STATUS_LOADING) {
-            items.removeAt(items.lastIndex)
-            plantListAdapter.notifyItemRemoved(items.lastIndex + 1)
-        }
+    private fun deleteProgress(position: Int) {
+        items.removeAt(position)
+        plantListAdapter.notifyItemRemoved(position)
     }
 
     fun getUserList() {
@@ -80,26 +84,19 @@ class PlantListViewModel(
             override fun onFailure(call: Call<Users>, t: Throwable) {
 //                Toast.makeText(context, t.localizedMessage, Toast.LENGTH_SHORT).show()
                 _statusMessage.value = Event(t.localizedMessage)
-                Log.e("PlantList", "XXX - ${t.localizedMessage}")
             }
         })
     }
 
     private fun updateUserList(users: Users) {
+        if (itemCount != 0) deleteProgress(progressPosition)
+
         lastPage = (users.total_count / perPage) + 1
-
-        users.items.forEach {
-            items.add(
-                Plant(imageUrl = it.avatarUrl, name = it.login, description = "")
-            )
+        val newData = users.items.map {
+            Plant(imageUrl = it.avatarUrl, name = it.login, description = "")
         }
-
+        items.addAll(newData)
         plantListAdapter.notifyItemRangeInserted(itemCount, users.items.size)
         itemCount += users.items.size
-
-        if (currentPage < lastPage) {
-            items.add(Plant("", "", STATUS_LOADING)) // progressbar 보여주기 위한 아이템 1개 추가
-            plantListAdapter.notifyItemInserted(itemCount + 1)
-        }
     }
 }
