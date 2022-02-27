@@ -9,6 +9,8 @@ import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.model.data.Users
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
 import com.june0122.sunflower.ui.adapter.STATUS_LOADING
+import com.june0122.sunflower.ui.adapter.VIEW_TYPE_ITEM
+import com.june0122.sunflower.ui.adapter.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.Event
 import com.june0122.sunflower.utils.PlantClickListener
 import retrofit2.Call
@@ -18,31 +20,43 @@ import retrofit2.Response
 class PlantListViewModel(
     private val plantListAdapter: PlantListAdapter,
 ) : ViewModel(), PlantClickListener {
+    private val _statusMessage = MutableLiveData<Event<String>>()
+    val statusMessage: LiveData<Event<String>> = _statusMessage
+    private val _showDetail = MutableLiveData<Event<Plant>>()
+    val showDetail: LiveData<Event<Plant>> = _showDetail
+
     val items = plantListAdapter.items
 
-    private val statusMessage = MutableLiveData<Event<String>>()
-    val message: LiveData<Event<String>>
-        get() = statusMessage
-
-    var itemCount = 0
-    var currentPage = 1
-    var perPage = 20
-    var lastPage = 0
-    var spanCount = 2
-
-    private val _showDetail = MutableLiveData<Plant>()
-    val showDetail: LiveData<Plant> = _showDetail
+    private var itemCount = 0
+    private var currentPage = 1
+    private var perPage = 20
+    private var lastPage = 0
 
     override fun onPlantClick(position: Int) {
-        val item = items[position]
-        _showDetail.value = item
+        val item = plantListAdapter.items[position]
+        _showDetail.value = Event(item)
+//        _navigateToDetail.value = Event(true)
+//        _navigateToDetail.postValue(Event(true)) // postValue vs setValue
     }
 
     override fun onPlantLongClick(position: Int) {
         val item = items[position]
     }
 
-    fun deleteProgress() {
+    fun checkItemType(position: Int): Int {
+        return if (position == itemCount) VIEW_TYPE_LOADING else VIEW_TYPE_ITEM
+    }
+
+    fun canLoaded(canScrollVertically: Boolean, lastVisibleItemPosition: Int): Boolean =
+        canScrollVertically && lastVisibleItemPosition == itemCount
+
+    fun loadNextPage() {
+        deleteProgress()
+        currentPage++
+        if (currentPage <= lastPage) getUserList()
+    }
+
+    private fun deleteProgress() {
         if (items.last().description == STATUS_LOADING) {
             items.removeAt(items.lastIndex)
             plantListAdapter.notifyItemRemoved(items.lastIndex + 1)
@@ -59,19 +73,19 @@ class PlantListViewModel(
                     response.body()?.let { users -> updateUserList(users) }
                 } else if (response.code() == 403) {
                     // Toast.makeText(context, "API rate limit exceeded.", Toast.LENGTH_SHORT).show()
-                    statusMessage.value = Event("API rate limit exceeded")
+                    _statusMessage.value = Event("API rate limit exceeded")
                 }
             }
 
             override fun onFailure(call: Call<Users>, t: Throwable) {
 //                Toast.makeText(context, t.localizedMessage, Toast.LENGTH_SHORT).show()
-                statusMessage.value = Event(t.localizedMessage)
+                _statusMessage.value = Event(t.localizedMessage)
                 Log.e("PlantList", "XXX - ${t.localizedMessage}")
             }
         })
     }
 
-    fun updateUserList(users: Users) {
+    private fun updateUserList(users: Users) {
         lastPage = (users.total_count / perPage) + 1
 
         users.items.forEach {

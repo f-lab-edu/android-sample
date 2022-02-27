@@ -13,18 +13,17 @@ import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentPlantListBinding
 import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
+import com.june0122.sunflower.ui.adapter.VIEW_TYPE_LOADING
+import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.PlantClickListener
 import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
 import com.june0122.sunflower.utils.toast
 import com.june0122.sunflower.viewmodel.PlantListViewModel
 import com.june0122.sunflower.viewmodel.PlantListViewModelFactory
 
-private const val DIALOG_PLANT = "DialogPlant"
-
 class PlantListFragment : Fragment() {
     private var _binding: FragmentPlantListBinding? = null
     private val binding get() = _binding!!
-    private lateinit var plantRecyclerView: RecyclerView
     private lateinit var plantListAdapter: PlantListAdapter
     private val viewModel: PlantListViewModel by viewModels(
         factoryProducer = { PlantListViewModelFactory(plantListAdapter) }
@@ -38,74 +37,74 @@ class PlantListFragment : Fragment() {
         plantListAdapter = PlantListAdapter(object : PlantClickListener {
             override fun onPlantClick(position: Int) {
                 viewModel.onPlantClick(position)
-                viewModel.showDetail.observe(viewLifecycleOwner) { plantData ->
-                    val plantDetailFragment = PlantDetailFragment.newInstance(plantData)
-                    requireActivity().supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.container, plantDetailFragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
             }
 
             override fun onPlantLongClick(position: Int) {
-                viewModel.onPlantClick(position)
-                viewModel.showDetail.observe(viewLifecycleOwner) { plantData ->
-                    PlantDialogFragment.newInstance(plantData).apply {
-                        show(this@PlantListFragment.parentFragmentManager, DIALOG_PLANT)
-                    }
-                }
+                viewModel.onPlantLongClick(position)
             }
         })
 
-        val layoutManager = GridLayoutManager(context, viewModel.spanCount)
+        viewModel.showDetail.observe(viewLifecycleOwner, EventObserver { plantData ->
+            val plantDetailFragment = PlantDetailFragment.newInstance(plantData)
+            requireActivity().supportFragmentManager
+                .beginTransaction()
+                .add(R.id.container, plantDetailFragment)
+                .addToBackStack(null)
+                .commit()
+        })
+
+// 롱클릭 이벤트 재작성 필요
+//                viewModel.showDetail.observe(viewLifecycleOwner) { plantData ->
+//                    PlantDialogFragment.newInstance(plantData).apply {
+//                        show(this@PlantListFragment.parentFragmentManager, DIALOG_PLANT)
+//                    }
+//                }
+
+        val layoutManager = GridLayoutManager(context, 2)
         layoutManager.spanSizeLookup = object : SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return if (position == viewModel.itemCount) layoutManager.spanCount else 1
+                return when(viewModel.checkItemType(position)) {
+                    VIEW_TYPE_LOADING -> layoutManager.spanCount
+                    else -> 1
+                }
             }
         }
 
-        plantRecyclerView = binding.rvPlantList
-        plantRecyclerView.adapter = plantListAdapter
-        plantRecyclerView.layoutManager = layoutManager
-        plantRecyclerView.addItemDecoration(PlantListItemDecoration(viewModel.spanCount, 60, true))
-        plantRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() { // < ---- 액션의 등록 및 시작
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+        binding.rvPlantList.run {
+            adapter = plantListAdapter
+            this.layoutManager = layoutManager
+            addItemDecoration(PlantListItemDecoration(2, 60, true))
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
 
-                if (canLoaded(
-                        binding.rvPlantList.canScrollVertically(1).not(),
-                        lastVisibleItemPosition,
-                        viewModel.itemCount
-                    )
-                ) {
-                    recyclerView.post { viewModel.deleteProgress() }
-                    viewModel.currentPage++
-                    if (viewModel.currentPage <= viewModel.lastPage) viewModel.getUserList()
+                    if (viewModel.canLoaded(
+                            binding.rvPlantList.canScrollVertically(1).not(),
+                            lastVisibleItemPosition
+                        )
+                    ) {
+                        viewModel.loadNextPage()
+                    }
                 }
-            }
-        })
+            })
+        }
 
         return view
     }
-
-    private fun canLoaded(canScrollVertically: Boolean, lastVisibleItemPosition: Int, totalCount: Int): Boolean =
-        canScrollVertically && lastVisibleItemPosition == totalCount
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.getUserList()
-        viewModel.message.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { message ->
-                context.toast(message)
-            }
+        viewModel.statusMessage.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { message -> context.toast(message) }
         }
 
         binding.fabAddPlant.setOnClickListener {
             val items = viewModel.items
             // 데이터를 직접 입력해서 아이템을 추가하는 식으로 변경 예정
+            // api로부터 데이터를 받아오는 화면이기 때문에 여기서는 아이템을 추가할 필요 없음
             items.add(
                 Plant(
                     imageUrl = "https://avatars.githubusercontent.com/u/39554623?v=4",
