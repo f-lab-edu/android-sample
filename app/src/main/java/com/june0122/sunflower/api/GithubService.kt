@@ -22,23 +22,20 @@ interface GithubService {
 
     @GET("users/")
     fun getUserDetail(@Path("username") userName: String): Call<UserDetail>
-
-    companion object {
-        private const val BASE_URL = "https://api.github.com/"
-
-        fun create(): GithubService {
-            val logger = HttpLoggingInterceptor().apply { level = Level.BASIC }
-
-            val client = OkHttpClient.Builder()
-                .addInterceptor(logger)
-                .build()
-
-            return Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(GithubService::class.java)
-        }
-    }
 }
+
+private const val BASE_URL = "https://api.github.com/"
+
+private val logger = HttpLoggingInterceptor().apply { level = Level.BASIC }
+
+private val httpClient: OkHttpClient = OkHttpClient.Builder().apply {
+    addInterceptor(logger)
+}.build()
+
+private val retrofit = Retrofit.Builder().apply {
+    baseUrl(BASE_URL)
+    client(httpClient)
+    addConverterFactory(GsonConverterFactory.create())
+}.build()
+
+val githubService: GithubService = retrofit.create(GithubService::class.java)
