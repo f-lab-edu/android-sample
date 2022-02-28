@@ -68,6 +68,7 @@ class PlantListFragment : Fragment() {
         binding.rvPlantList.run {
             adapter = plantListAdapter
             this.layoutManager = layoutManager
+            itemAnimator = null
             val px = resources.getDimensionPixelSize(R.dimen.margin_large)
             addItemDecoration(PlantListItemDecoration(spanCount, px, true))
             addOnScrollListener(object : RecyclerView.OnScrollListener() {

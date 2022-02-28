@@ -10,9 +10,7 @@ class PlantListItemDecoration(private val spanCount: Int, @Px private val spacin
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        var position = parent.getChildAdapterPosition(view)
-        // 어댑터의 아이템이 삭제되면 position 값이 -1로 찍히는 문제 방지
-        if (position == -1) position = spanCount
+        val position = parent.getChildAdapterPosition(view)
         val column = position % spanCount
 
         if (includeEdge) {
