@@ -55,12 +55,12 @@ class PlantListFragment : Fragment() {
                 .commit()
         })
 
-// 롱클릭 이벤트 재작성 필요
-//                viewModel.showDetail.observe(viewLifecycleOwner) { plantData ->
-//                    PlantDialogFragment.newInstance(plantData).apply {
-//                        show(this@PlantListFragment.parentFragmentManager, DIALOG_PLANT)
-//                    }
-//                }
+//        // 롱클릭 이벤트 재작성 필요
+//        viewModel.showDetail.observe(viewLifecycleOwner) { plantData ->
+//            PlantDialogFragment.newInstance(plantData).apply {
+//                show(this@PlantListFragment.parentFragmentManager, DIALOG_PLANT)
+//            }
+//        }
 
         val layoutManager = GridLayoutManager(context, spanCount)
         setSpanSize(layoutManager)
@@ -108,17 +108,16 @@ class PlantListFragment : Fragment() {
         }
 
         binding.fabAddPlant.setOnClickListener {
-            val items = viewModel.items
             // 데이터를 직접 입력해서 아이템을 추가하는 식으로 변경 예정
             // api로부터 데이터를 받아오는 화면이기 때문에 여기서는 아이템을 추가할 필요 없음
-            items.add(
+            viewModel.items.add(
                 Plant(
                     imageUrl = "https://avatars.githubusercontent.com/u/39554623?v=4",
                     name = "june0122",
                     description = "Junior Android Developer"
                 )
             )
-            plantListAdapter.notifyItemInserted(items.size)
+            plantListAdapter.notifyItemInserted(viewModel.items.size)
         }
     }
 
