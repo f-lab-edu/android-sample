@@ -3,11 +3,12 @@ package com.june0122.sunflower.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.june0122.sunflower.api.GithubService
+import com.june0122.sunflower.api.githubService
 import com.june0122.sunflower.model.data.Plant
+import com.june0122.sunflower.model.data.PlantData
+import com.june0122.sunflower.model.data.Progress
 import com.june0122.sunflower.model.data.Users
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
-import com.june0122.sunflower.ui.adapter.STATUS_LOADING
 import com.june0122.sunflower.ui.adapter.VIEW_TYPE_ITEM
 import com.june0122.sunflower.ui.adapter.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.Event
@@ -21,8 +22,8 @@ class PlantListViewModel(
 ) : ViewModel(), PlantClickListener {
     private val _statusMessage = MutableLiveData<Event<String>>()
     val statusMessage: LiveData<Event<String>> = _statusMessage
-    private val _showDetail = MutableLiveData<Event<Plant>>()
-    val showDetail: LiveData<Event<Plant>> = _showDetail
+    private val _showDetail = MutableLiveData<Event<PlantData>>()
+    val showDetail: LiveData<Event<PlantData>> = _showDetail
 
     val items = plantListAdapter.items
 
@@ -35,12 +36,10 @@ class PlantListViewModel(
     override fun onPlantClick(position: Int) {
         val item = plantListAdapter.items[position]
         _showDetail.value = Event(item)
-//        _navigateToDetail.value = Event(true)
-//        _navigateToDetail.postValue(Event(true)) // postValue vs setValue
     }
 
     override fun onPlantLongClick(position: Int) {
-        val item = items[position]
+        val item = plantListAdapter.items[position]
     }
 
     fun checkItemType(position: Int): Int {
@@ -54,7 +53,7 @@ class PlantListViewModel(
         progressPosition = itemCount
 
         if (currentPage < lastPage) {
-            items.add(Plant("", "", STATUS_LOADING)) // progressbar 보여주기 위한 아이템 1개 추가
+            plantListAdapter.items.add(Progress)
             plantListAdapter.notifyItemInserted(progressPosition)
         }
 
@@ -68,21 +67,18 @@ class PlantListViewModel(
     }
 
     fun getUserList() {
-        val userListCall: Call<Users> =
-            GithubService.create().getUserList(query = "june", perPage, currentPage)
+        val userListCall: Call<Users> = githubService.getUserList(query = "june", perPage, currentPage)
 
         userListCall.enqueue(object : Callback<Users> {
             override fun onResponse(call: Call<Users>, response: Response<Users>) {
                 if (response.isSuccessful) {
                     response.body()?.let { users -> updateUserList(users) }
                 } else if (response.code() == 403) {
-                    // Toast.makeText(context, "API rate limit exceeded.", Toast.LENGTH_SHORT).show()
                     _statusMessage.value = Event("API rate limit exceeded")
                 }
             }
 
             override fun onFailure(call: Call<Users>, t: Throwable) {
-//                Toast.makeText(context, t.localizedMessage, Toast.LENGTH_SHORT).show()
                 _statusMessage.value = Event(t.localizedMessage)
             }
         })
