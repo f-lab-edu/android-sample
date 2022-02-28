@@ -4,12 +4,16 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
+sealed class PlantData
+
+object Progress : PlantData()
+
 @Parcelize
 data class Plant(
     val imageUrl: String,
     val name: String,
     val description: String,
-) : Parcelable
+) : Parcelable, PlantData()
 
 data class Users(
     @field:SerializedName("") val incomplete_results: Boolean,
