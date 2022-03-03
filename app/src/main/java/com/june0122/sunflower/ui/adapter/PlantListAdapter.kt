@@ -12,9 +12,6 @@ import com.june0122.sunflower.ui.viewholder.PlantListViewHolder
 import com.june0122.sunflower.ui.viewholder.ProgressHolder
 import com.june0122.sunflower.utils.PlantClickListener
 
-const val VIEW_TYPE_ITEM = 0
-const val VIEW_TYPE_LOADING = 1
-
 class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val _items = mutableListOf<PlantData>()
     val items get() = _items
@@ -48,5 +45,10 @@ class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.
             is Plant -> if (holder is PlantListViewHolder) holder.bind(data)
             is Progress -> {}
         }
+    }
+
+    companion object {
+        const val VIEW_TYPE_ITEM = 0
+        const val VIEW_TYPE_LOADING = 1
     }
 }
