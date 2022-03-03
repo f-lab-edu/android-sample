@@ -3,14 +3,14 @@ package com.june0122.sunflower.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.june0122.sunflower.api.githubService
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.model.data.PlantData
 import com.june0122.sunflower.model.data.Progress
 import com.june0122.sunflower.model.data.Users
+import com.june0122.sunflower.network.RetrofitClientInstance
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
-import com.june0122.sunflower.ui.adapter.VIEW_TYPE_ITEM
-import com.june0122.sunflower.ui.adapter.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.Event
 import com.june0122.sunflower.utils.PlantClickListener
 import retrofit2.Call
@@ -42,32 +42,24 @@ class PlantListViewModel(
         val item = plantListAdapter.items[position]
     }
 
-    fun checkItemType(position: Int): Int {
-        return if (position == itemCount) VIEW_TYPE_LOADING else VIEW_TYPE_ITEM
-    }
-
-    fun canLoaded(canScrollVertically: Boolean, lastVisibleItemPosition: Int): Boolean =
-        canScrollVertically && lastVisibleItemPosition == itemCount - 1
-
-    fun loadNextPage() {
-        progressPosition = itemCount
-
-        if (currentPage < lastPage) {
-            plantListAdapter.items.add(Progress)
-            plantListAdapter.notifyItemInserted(progressPosition)
+    fun loadNextPage(
+        canScrollVertically: Boolean,
+        lastVisibleItemPosition: Int,
+        smoothScroller: LinearSmoothScroller,
+        layoutManager: GridLayoutManager
+    ) {
+        if (canScrollVertically && lastVisibleItemPosition == itemCount - 1) {
+            progressPosition = itemCount
+            if (currentPage < lastPage) addProgress()
+            currentPage++
+            if (currentPage <= lastPage) getUserList()
+            scrollToProgress(smoothScroller, layoutManager)
         }
-
-        currentPage++
-        if (currentPage <= lastPage) getUserList()
-    }
-
-    private fun deleteProgress(position: Int) {
-        items.removeAt(position)
-        plantListAdapter.notifyItemRemoved(position)
     }
 
     fun getUserList() {
-        val userListCall: Call<Users> = githubService.getUserList(query = "june", perPage, currentPage)
+        val userListCall: Call<Users> =
+            RetrofitClientInstance().githubService.getUserList(query = "june", perPage, currentPage)
 
         userListCall.enqueue(object : Callback<Users> {
             override fun onResponse(call: Call<Users>, response: Response<Users>) {
@@ -86,7 +78,6 @@ class PlantListViewModel(
 
     private fun updateUserList(users: Users) {
         if (itemCount != 0) deleteProgress(progressPosition)
-
         lastPage = (users.total_count / perPage) + 1
         val newData = users.items.map {
             Plant(imageUrl = it.avatarUrl, name = it.login, description = "")
@@ -94,5 +85,20 @@ class PlantListViewModel(
         items.addAll(newData)
         plantListAdapter.notifyItemRangeInserted(itemCount, users.items.size)
         itemCount += users.items.size
+    }
+
+    private fun scrollToProgress(smoothScroller: LinearSmoothScroller, layoutManager: GridLayoutManager) {
+        smoothScroller.targetPosition = plantListAdapter.itemCount
+        layoutManager.startSmoothScroll(smoothScroller)
+    }
+
+    private fun addProgress() {
+        plantListAdapter.items.add(Progress)
+        plantListAdapter.notifyItemInserted(progressPosition)
+    }
+
+    private fun deleteProgress(position: Int) {
+        items.removeAt(position)
+        plantListAdapter.notifyItemRemoved(position)
     }
 }

@@ -13,7 +13,7 @@ import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentPlantListBinding
 import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
-import com.june0122.sunflower.ui.adapter.VIEW_TYPE_LOADING
+import com.june0122.sunflower.ui.adapter.PlantListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.PlantClickListener
 import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
@@ -25,6 +25,7 @@ class PlantListFragment : Fragment() {
     private var _binding: FragmentPlantListBinding? = null
     private val binding get() = _binding!!
     private lateinit var plantListAdapter: PlantListAdapter
+    private lateinit var recyclerView: RecyclerView
     private val viewModel: PlantListViewModel by viewModels(
         factoryProducer = { PlantListViewModelFactory(plantListAdapter) }
     )
@@ -35,7 +36,6 @@ class PlantListFragment : Fragment() {
         _binding = FragmentPlantListBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        // 뷰모델에 어댑터가 주입되어 있기 때문에 지연 초기화인 어댑터를 초기화 후에 ViewModel 내부의 필드 접근 가능
         plantListAdapter = PlantListAdapter(object : PlantClickListener {
             override fun onPlantClick(position: Int) {
                 viewModel.onPlantClick(position)
@@ -63,38 +63,8 @@ class PlantListFragment : Fragment() {
 //        }
 
         val layoutManager = GridLayoutManager(context, spanCount)
+        configureRecyclerView(layoutManager)
         setSpanSize(layoutManager)
-
-        binding.rvPlantList.run {
-            adapter = plantListAdapter
-            this.layoutManager = layoutManager
-            itemAnimator = null
-            val px = resources.getDimensionPixelSize(R.dimen.margin_large)
-            addItemDecoration(PlantListItemDecoration(spanCount, px, true))
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
-                    val smoothScroller = object : LinearSmoothScroller(context) {
-                        override fun getVerticalSnapPreference(): Int {
-                            return SNAP_TO_END
-                        }
-                    }
-
-                    if (viewModel.canLoaded(
-                            binding.rvPlantList.canScrollVertically(1).not(),
-                            lastVisibleItemPosition
-                        )
-                    ) {
-                        recyclerView.post {
-                            viewModel.loadNextPage()
-                            smoothScroller.targetPosition = plantListAdapter.itemCount
-                            layoutManager.startSmoothScroll(smoothScroller)
-                        }
-                    }
-                }
-            })
-        }
 
         return view
     }
@@ -129,11 +99,40 @@ class PlantListFragment : Fragment() {
     private fun setSpanSize(layoutManager: GridLayoutManager) {
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return when (viewModel.checkItemType(position)) {
+                return when (plantListAdapter.getItemViewType(position)) {
                     VIEW_TYPE_LOADING -> spanCount
                     else -> 1
                 }
             }
+        }
+    }
+
+    private fun configureRecyclerView(layoutManager: GridLayoutManager) {
+        val px = resources.getDimensionPixelSize(R.dimen.margin_large)
+        val scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                val smoothScroller = object : LinearSmoothScroller(context) {
+                    override fun getVerticalSnapPreference(): Int = SNAP_TO_END
+                }
+                recyclerView.post {
+                    viewModel.loadNextPage(
+                        recyclerView.canScrollVertically(1).not(),
+                        lastVisibleItemPosition,
+                        smoothScroller,
+                        layoutManager
+                    )
+                }
+            }
+        }
+
+        recyclerView = binding.rvPlantList.apply {
+            this.layoutManager = layoutManager
+            adapter = plantListAdapter
+            itemAnimator = null
+            addItemDecoration(PlantListItemDecoration(spanCount, px, true))
+            addOnScrollListener(scrollListener)
         }
     }
 }
