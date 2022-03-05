@@ -6,25 +6,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.databinding.ItemPlantListBinding
 import com.june0122.sunflower.databinding.ItemProgressBinding
 import com.june0122.sunflower.model.data.Plant
+import com.june0122.sunflower.model.data.PlantData
+import com.june0122.sunflower.model.data.Progress
 import com.june0122.sunflower.ui.viewholder.PlantListViewHolder
 import com.june0122.sunflower.ui.viewholder.ProgressHolder
 import com.june0122.sunflower.utils.PlantClickListener
 
-const val VIEW_TYPE_ITEM = 0
-const val VIEW_TYPE_LOADING = 1
-const val STATUS_LOADING = "STATUS_LOADING"
-
 class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    /**
-     * 1. item은 언제든 add, remove, clear 할 수 있어야 한다.
-     * 2. item 리스트 변수는 private으로 선언
-     * 3. item이 추가되었을 경우 리스트 갱신이 동작하도록 구현
-     */
-    val items = mutableListOf<Plant>()
+    private val _items = mutableListOf<PlantData>()
+    val items get() = _items
 
     override fun getItemViewType(position: Int): Int {
-        return when(items[position].description) {
-            STATUS_LOADING -> VIEW_TYPE_LOADING
+        return when(items[position]) {
+            is Progress -> VIEW_TYPE_LOADING
             else -> VIEW_TYPE_ITEM
         }
     }
@@ -44,18 +38,17 @@ class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.
         }
     }
 
-    override fun getItemCount(): Int = items.count()
+    override fun getItemCount(): Int = _items.count()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val plant = items[holder.absoluteAdapterPosition]
-
-        if (holder is PlantListViewHolder) holder.bind(plant)
+        when (val data = items[holder.absoluteAdapterPosition]) {
+            is Plant -> if (holder is PlantListViewHolder) holder.bind(data)
+            is Progress -> {}
+        }
     }
 
-    fun deleteProgress() {
-        if (items.last().description == STATUS_LOADING) {
-            items.removeAt(items.lastIndex)
-            notifyItemRemoved(items.lastIndex + 1)
-        }
+    companion object {
+        const val VIEW_TYPE_ITEM = 0
+        const val VIEW_TYPE_LOADING = 1
     }
 }
