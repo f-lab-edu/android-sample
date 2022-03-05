@@ -5,49 +5,66 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentPlantListBinding
 import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
+import com.june0122.sunflower.ui.adapter.PlantListAdapter.Companion.VIEW_TYPE_LOADING
+import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.PlantClickListener
 import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
-
-private const val DIALOG_PLANT = "DialogPlant"
+import com.june0122.sunflower.utils.toast
+import com.june0122.sunflower.viewmodel.PlantListViewModel
+import com.june0122.sunflower.viewmodel.PlantListViewModelFactory
 
 class PlantListFragment : Fragment() {
     private var _binding: FragmentPlantListBinding? = null
     private val binding get() = _binding!!
-    private lateinit var plantRecyclerView: RecyclerView
     private lateinit var plantListAdapter: PlantListAdapter
+    private lateinit var recyclerView: RecyclerView
+    private val viewModel: PlantListViewModel by viewModels(
+        factoryProducer = { PlantListViewModelFactory(plantListAdapter) }
+    )
+
+    private var spanCount = 2
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentPlantListBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        plantRecyclerView = binding.rvPlantList
-        plantRecyclerView.layoutManager = GridLayoutManager(context, 2)
-        plantRecyclerView.addItemDecoration(PlantListItemDecoration(2, 60, true))
         plantListAdapter = PlantListAdapter(object : PlantClickListener {
             override fun onPlantClick(position: Int) {
-                val plantData = plantListAdapter.items[position]
-                val plantDetailFragment = PlantDetailFragment.newInstance(plantData)
-                requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.container, plantDetailFragment)
-                    .addToBackStack(null)
-                    .commit()
+                viewModel.onPlantClick(position)
             }
 
             override fun onPlantLongClick(position: Int) {
-                val plantData = plantListAdapter.items[position]
-                PlantDialogFragment.newInstance(plantData).apply {
-                    show(this@PlantListFragment.parentFragmentManager, DIALOG_PLANT)
-                }
+                viewModel.onPlantLongClick(position)
             }
         })
-        plantRecyclerView.adapter = plantListAdapter
+
+        viewModel.showDetail.observe(viewLifecycleOwner, EventObserver { plantData ->
+            val plantDetailFragment = PlantDetailFragment.newInstance(plantData)
+            requireActivity().supportFragmentManager
+                .beginTransaction()
+                .add(R.id.container, plantDetailFragment)
+                .addToBackStack(null)
+                .commit()
+        })
+
+//        // 롱클릭 이벤트 재작성 필요
+//        viewModel.showDetail.observe(viewLifecycleOwner) { plantData ->
+//            PlantDialogFragment.newInstance(plantData).apply {
+//                show(this@PlantListFragment.parentFragmentManager, DIALOG_PLANT)
+//            }
+//        }
+
+        val layoutManager = GridLayoutManager(context, spanCount)
+        configureRecyclerView(layoutManager)
+        setSpanSize(layoutManager)
 
         return view
     }
@@ -55,22 +72,67 @@ class PlantListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.getUserList()
+        viewModel.statusMessage.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { message -> context.toast(message) }
+        }
+
         binding.fabAddPlant.setOnClickListener {
-            val items = plantListAdapter.items
             // 데이터를 직접 입력해서 아이템을 추가하는 식으로 변경 예정
-            items.add(
+            // api로부터 데이터를 받아오는 화면이기 때문에 여기서는 아이템을 추가할 필요 없음
+            viewModel.items.add(
                 Plant(
-                    imageUrl = "https://www.thespruce.com/thmb/-W1mZNWR5tVwvp4reWuEoe0ZEyc=/941x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/GettyImages-902133540-7e603f4ab7aa4aadb097c61d2627da24.jpg",
-                    name = "Quinoa",
-                    description = "Quinoa (Chenopodium quinoa) is a flowering plant in the Amaranth family that is grown as a crop primarily for its edible seeds. It has been grown for human consumption for thousands of years, originating from mountainous regions of South America. Quinoa cultivation has now grown to over 70 countries around the world. This ancient superfood is packed with vitamins and minerals and has a nice mild taste. The seeds are often cooked like rice, or ground into a flour that can be used as a gluten-free alternative in cooking and baking."
+                    imageUrl = "https://avatars.githubusercontent.com/u/39554623?v=4",
+                    name = "june0122",
+                    description = "Junior Android Developer"
                 )
             )
-            plantListAdapter.notifyItemInserted(items.size)
+            plantListAdapter.notifyItemInserted(viewModel.items.size)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setSpanSize(layoutManager: GridLayoutManager) {
+        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return when (plantListAdapter.getItemViewType(position)) {
+                    VIEW_TYPE_LOADING -> spanCount
+                    else -> 1
+                }
+            }
+        }
+    }
+
+    private fun configureRecyclerView(layoutManager: GridLayoutManager) {
+        val px = resources.getDimensionPixelSize(R.dimen.margin_large)
+        val scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                val smoothScroller = object : LinearSmoothScroller(context) {
+                    override fun getVerticalSnapPreference(): Int = SNAP_TO_END
+                }
+                recyclerView.post {
+                    viewModel.loadNextPage(
+                        recyclerView.canScrollVertically(1).not(),
+                        lastVisibleItemPosition,
+                        smoothScroller,
+                        layoutManager
+                    )
+                }
+            }
+        }
+
+        recyclerView = binding.rvPlantList.apply {
+            this.layoutManager = layoutManager
+            adapter = plantListAdapter
+            itemAnimator = null
+            addItemDecoration(PlantListItemDecoration(spanCount, px, true))
+            addOnScrollListener(scrollListener)
+        }
     }
 }

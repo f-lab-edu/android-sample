@@ -11,6 +11,7 @@ import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.databinding.FragmentPlantDetailBinding
 import com.june0122.sunflower.model.data.Plant
+import com.june0122.sunflower.model.data.PlantData
 
 private const val PLANT_DATA = "plant_data"
 
@@ -20,7 +21,7 @@ class PlantDetailFragment : Fragment() {
     private lateinit var data: Plant
 
     companion object {
-        fun newInstance(plantData: Plant): PlantDetailFragment {
+        fun newInstance(plantData: PlantData): PlantDetailFragment {
             val args = bundleOf(
                 PLANT_DATA to plantData
             )

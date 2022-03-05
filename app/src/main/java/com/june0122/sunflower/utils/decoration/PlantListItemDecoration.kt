@@ -2,9 +2,10 @@ package com.june0122.sunflower.utils.decoration
 
 import android.graphics.Rect
 import android.view.View
+import androidx.annotation.Px
 import androidx.recyclerview.widget.RecyclerView
 
-class PlantListItemDecoration(private val spanCount: Int, private val spacing: Int, private val includeEdge: Boolean) :
+class PlantListItemDecoration(private val spanCount: Int, @Px private val spacing: Int, private val includeEdge: Boolean) :
     RecyclerView.ItemDecoration() {
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         super.getItemOffsets(outRect, view, parent, state)
@@ -23,7 +24,7 @@ class PlantListItemDecoration(private val spanCount: Int, private val spacing: I
         } else {
             outRect.left = column * spacing / spanCount // column * ((1f / spanCount) * spacing)
             outRect.right =
-                spacing - (column + 1) * spacing / spanCount // spacing - (column + 1) * ((1f /    spanCount) * spacing)
+                spacing - (column + 1) * spacing / spanCount // spacing - (column + 1) * ((1f / spanCount) * spacing)
             if (position >= spanCount) {
                 outRect.top = spacing // item top
             }
