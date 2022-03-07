@@ -31,13 +31,13 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBar(navController, appBarConfiguration)
         setupNavigationMenu(navController)
-//        setupBottomNavMenu(navController)
+        setupBottomNavMenu(navController)
     }
 
-//    private fun setupBottomNavMenu(navController: NavController) {
-//        val bottomNav = binding.bottomNavView
-//        bottomNav.setupWithNavController(navController)
-//    }
+    private fun setupBottomNavMenu(navController: NavController) {
+        val bottomNav = binding.bottomNavView
+        bottomNav.setupWithNavController(navController)
+    }
 
     private fun setupNavigationMenu(navController: NavController) {
         binding.navView.setupWithNavController(navController)
