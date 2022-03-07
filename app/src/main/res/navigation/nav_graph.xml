@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/user_list_dest">
+
+    <fragment
+        android:id="@+id/user_list_dest"
+        android:name="com.june0122.sunflower.ui.fragment.PlantListFragment"
+        android:label="User List"
+        tools:layout="@layout/fragment_plant_list">
+        <action
+            android:id="@+id/detail_action"
+            app:destination="@id/detail_dest" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detail_dest"
+        android:name="com.june0122.sunflower.ui.fragment.PlantDetailFragment"
+        android:label="User Detail"
+        tools:layout="@layout/fragment_plant_detail" >
+        <argument
+            android:name="userData"
+            app:argType="com.june0122.sunflower.model.data.Plant" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookmark_dest"
+        android:name="com.june0122.sunflower.ui.fragment.BookmarkFragment"
+        android:label="Bookmark"
+        tools:layout="@layout/fragment_bookmark" />
+</navigation>
