@@ -5,36 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.databinding.FragmentPlantDetailBinding
 import com.june0122.sunflower.model.data.Plant
-import com.june0122.sunflower.model.data.PlantData
-
-private const val PLANT_DATA = "plant_data"
 
 class PlantDetailFragment : Fragment() {
     private var _binding: FragmentPlantDetailBinding? = null
     private val binding get() = _binding!!
     private lateinit var data: Plant
 
-    companion object {
-        fun newInstance(plantData: PlantData): PlantDetailFragment {
-            val args = bundleOf(
-                PLANT_DATA to plantData
-            )
-
-            return PlantDetailFragment().apply {
-                arguments = args
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        data = arguments?.getParcelable<Plant>(PLANT_DATA) as Plant
+        val safeArgs: PlantDetailFragmentArgs by navArgs()
+        data = safeArgs.userData
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
