@@ -22,8 +22,8 @@ class PlantListViewModel(
 ) : ViewModel(), PlantClickListener {
     private val _statusMessage = MutableLiveData<Event<String>>()
     val statusMessage: LiveData<Event<String>> = _statusMessage
-    private val _showDetail = MutableLiveData<Event<PlantData>>()
-    val showDetail: LiveData<Event<PlantData>> = _showDetail
+    private val _showDetail = MutableLiveData<Event<Plant>>()
+    val showDetail: LiveData<Event<Plant>> = _showDetail
 
     val items = plantListAdapter.items
 
@@ -35,7 +35,7 @@ class PlantListViewModel(
 
     override fun onPlantClick(position: Int) {
         val item = plantListAdapter.items[position]
-        _showDetail.value = Event(item)
+        _showDetail.value = Event(item as Plant)
     }
 
     override fun onPlantLongClick(position: Int) {
