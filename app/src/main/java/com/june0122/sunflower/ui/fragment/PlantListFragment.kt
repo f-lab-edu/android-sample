@@ -6,12 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentPlantListBinding
-import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
 import com.june0122.sunflower.ui.adapter.PlantListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.EventObserver
@@ -33,6 +33,7 @@ class PlantListFragment : Fragment() {
     private var spanCount = 2
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        setHasOptionsMenu(true)
         _binding = FragmentPlantListBinding.inflate(inflater, container, false)
         val view = binding.root
 
@@ -47,12 +48,8 @@ class PlantListFragment : Fragment() {
         })
 
         viewModel.showDetail.observe(viewLifecycleOwner, EventObserver { plantData ->
-            val plantDetailFragment = PlantDetailFragment.newInstance(plantData)
-            requireActivity().supportFragmentManager
-                .beginTransaction()
-                .add(R.id.container, plantDetailFragment)
-                .addToBackStack(null)
-                .commit()
+            val action = PlantListFragmentDirections.detailAction(plantData)
+            findNavController().navigate(action)
         })
 
 //        // 롱클릭 이벤트 재작성 필요
@@ -77,18 +74,18 @@ class PlantListFragment : Fragment() {
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
         }
 
-        binding.fabAddPlant.setOnClickListener {
-            // 데이터를 직접 입력해서 아이템을 추가하는 식으로 변경 예정
-            // api로부터 데이터를 받아오는 화면이기 때문에 여기서는 아이템을 추가할 필요 없음
-            viewModel.items.add(
-                Plant(
-                    imageUrl = "https://avatars.githubusercontent.com/u/39554623?v=4",
-                    name = "june0122",
-                    description = "Junior Android Developer"
-                )
-            )
-            plantListAdapter.notifyItemInserted(viewModel.items.size)
-        }
+//        binding.fabAddPlant.setOnClickListener {
+//            // 데이터를 직접 입력해서 아이템을 추가하는 식으로 변경 예정
+//            // api로부터 데이터를 받아오는 화면이기 때문에 여기서는 아이템을 추가할 필요 없음
+//            viewModel.items.add(
+//                Plant(
+//                    imageUrl = "https://avatars.githubusercontent.com/u/39554623?v=4",
+//                    name = "june0122",
+//                    description = "Junior Android Developer"
+//                )
+//            )
+//            plantListAdapter.notifyItemInserted(viewModel.items.size)
+//        }
     }
 
     override fun onDestroyView() {
