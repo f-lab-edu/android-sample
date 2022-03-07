@@ -15,7 +15,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/available_plants"
+        android:text="@string/available_users"
         android:textColor="@color/sunflower_green_900"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/rv_plant_list"
