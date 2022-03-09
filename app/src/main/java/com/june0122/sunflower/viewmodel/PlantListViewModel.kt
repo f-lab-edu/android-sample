@@ -25,7 +25,8 @@ class PlantListViewModel(
     private val _showDetail = MutableLiveData<Event<Plant>>()
     val showDetail: LiveData<Event<Plant>> = _showDetail
 
-    val items = plantListAdapter.items
+    private val _items = MutableLiveData<List<PlantData>>()
+    val items: LiveData<List<PlantData>> = _items
 
     private var itemCount = 0
     private var currentPage = 1
@@ -82,7 +83,9 @@ class PlantListViewModel(
         val newData = users.items.map {
             Plant(imageUrl = it.avatarUrl, name = it.login, description = "")
         }
-        items.addAll(newData)
+        _items.postValue(plantListAdapter.items.apply { addAll(newData) })
+//        _items.value = plantListAdapter.items.apply { addAll(newData) }
+//        items.addAll(newData)
         plantListAdapter.notifyItemRangeInserted(itemCount, users.items.size)
         itemCount += users.items.size
     }
@@ -93,12 +96,13 @@ class PlantListViewModel(
     }
 
     private fun addProgress() {
-        plantListAdapter.items.add(Progress)
+        _items.value = plantListAdapter.items.apply { add(Progress) }
         plantListAdapter.notifyItemInserted(progressPosition)
     }
 
     private fun deleteProgress(position: Int) {
-        items.removeAt(position)
+        _items.value = plantListAdapter.items.apply { removeAt(position) }
+//        items.removeAt(position)
         plantListAdapter.notifyItemRemoved(position)
     }
 }
