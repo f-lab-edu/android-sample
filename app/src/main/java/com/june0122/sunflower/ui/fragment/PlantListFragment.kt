@@ -24,20 +24,9 @@ import com.june0122.sunflower.viewmodel.PlantListViewModelFactory
 class PlantListFragment : Fragment() {
     private var _binding: FragmentPlantListBinding? = null
     private val binding get() = _binding!!
-    private lateinit var plantListAdapter: PlantListAdapter
-    private lateinit var recyclerView: RecyclerView
-    private val viewModel: PlantListViewModel by viewModels(
-        factoryProducer = { PlantListViewModelFactory(plantListAdapter) }
-    )
 
-    private var spanCount = 2
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        setHasOptionsMenu(true)
-        _binding = FragmentPlantListBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        plantListAdapter = PlantListAdapter(object : PlantClickListener {
+    private val plantListAdapter: PlantListAdapter by lazy {
+        PlantListAdapter(object : PlantClickListener {
             override fun onPlantClick(position: Int) {
                 viewModel.onPlantClick(position)
             }
@@ -46,8 +35,42 @@ class PlantListFragment : Fragment() {
                 viewModel.onPlantLongClick(position)
             }
         })
+    }
 
-        viewModel.showDetail.observe(viewLifecycleOwner, EventObserver { plantData ->
+    private val viewModel: PlantListViewModel by viewModels(
+        factoryProducer = { PlantListViewModelFactory(plantListAdapter) }
+    )
+
+    private val layoutManager by lazy { GridLayoutManager(context, DEFAULT_SPAN_COUNT) }
+
+    private val scrollListener by lazy {
+        object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                val smoothScroller = object : LinearSmoothScroller(context) {
+                    override fun getVerticalSnapPreference(): Int = SNAP_TO_END
+                }
+                recyclerView.post {
+                    viewModel.loadNextPage(
+                        recyclerView.canScrollVertically(1).not(),
+                        lastVisibleItemPosition,
+                        smoothScroller,
+                        layoutManager
+                    )
+                }
+            }
+        }
+    }
+
+    private lateinit var recyclerView: RecyclerView
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        setHasOptionsMenu(true)
+        _binding = FragmentPlantListBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        viewModel.showDetail.observe(requireActivity(), EventObserver { plantData ->
             val action = PlantListFragmentDirections.detailAction(plantData)
             findNavController().navigate(action)
         })
@@ -58,19 +81,18 @@ class PlantListFragment : Fragment() {
 //                show(this@PlantListFragment.parentFragmentManager, DIALOG_PLANT)
 //            }
 //        }
-
-        val layoutManager = GridLayoutManager(context, spanCount)
-        configureRecyclerView(layoutManager)
-        setSpanSize(layoutManager)
-
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getUserList()
-        viewModel.statusMessage.observe(viewLifecycleOwner) { event ->
+        configureRecyclerView(layoutManager)
+        setSpanSize(layoutManager)
+
+        if (plantListAdapter.items.isEmpty()) { viewModel.getUserList() }
+
+        viewModel.statusMessage.observe(requireActivity()) { event ->
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
         }
 
@@ -90,6 +112,8 @@ class PlantListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        recyclerView.layoutManager = null
+        recyclerView.removeOnScrollListener(scrollListener)
         _binding = null
     }
 
@@ -97,7 +121,7 @@ class PlantListFragment : Fragment() {
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return when (plantListAdapter.getItemViewType(position)) {
-                    VIEW_TYPE_LOADING -> spanCount
+                    VIEW_TYPE_LOADING -> DEFAULT_SPAN_COUNT
                     else -> 1
                 }
             }
@@ -106,30 +130,17 @@ class PlantListFragment : Fragment() {
 
     private fun configureRecyclerView(layoutManager: GridLayoutManager) {
         val px = resources.getDimensionPixelSize(R.dimen.margin_large)
-        val scrollListener = object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
-                val smoothScroller = object : LinearSmoothScroller(context) {
-                    override fun getVerticalSnapPreference(): Int = SNAP_TO_END
-                }
-                recyclerView.post {
-                    viewModel.loadNextPage(
-                        recyclerView.canScrollVertically(1).not(),
-                        lastVisibleItemPosition,
-                        smoothScroller,
-                        layoutManager
-                    )
-                }
-            }
-        }
 
         recyclerView = binding.rvPlantList.apply {
             this.layoutManager = layoutManager
             adapter = plantListAdapter
             itemAnimator = null
-            addItemDecoration(PlantListItemDecoration(spanCount, px, true))
+            addItemDecoration(PlantListItemDecoration(DEFAULT_SPAN_COUNT, px, true))
             addOnScrollListener(scrollListener)
         }
+    }
+
+    companion object {
+        private const val DEFAULT_SPAN_COUNT = 2
     }
 }
