@@ -1,6 +1,6 @@
 package com.june0122.sunflower.service
 
-import com.june0122.sunflower.model.data.UserDetail
+import com.june0122.sunflower.model.data.UserInfoDetail
 import com.june0122.sunflower.model.data.Users
 import retrofit2.Call
 import retrofit2.http.GET
@@ -16,5 +16,5 @@ interface GithubService {
     ): Call<Users>
 
     @GET("users/")
-    fun getUserDetail(@Path("username") userName: String): Call<UserDetail>
+    fun getUserDetail(@Path("username") userName: String): Call<UserInfoDetail>
 }

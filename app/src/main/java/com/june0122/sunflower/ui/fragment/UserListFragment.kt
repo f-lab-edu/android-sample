@@ -11,34 +11,34 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
-import com.june0122.sunflower.databinding.FragmentPlantListBinding
-import com.june0122.sunflower.ui.adapter.PlantListAdapter
-import com.june0122.sunflower.ui.adapter.PlantListAdapter.Companion.VIEW_TYPE_LOADING
+import com.june0122.sunflower.databinding.FragmentUserListBinding
+import com.june0122.sunflower.ui.adapter.UserListAdapter
+import com.june0122.sunflower.ui.adapter.UserListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.EventObserver
-import com.june0122.sunflower.utils.PlantClickListener
-import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
+import com.june0122.sunflower.utils.UserClickListener
+import com.june0122.sunflower.utils.decoration.UserListItemDecoration
 import com.june0122.sunflower.utils.toast
-import com.june0122.sunflower.viewmodel.PlantListViewModelFactory
 import com.june0122.sunflower.viewmodel.SharedViewModel
+import com.june0122.sunflower.viewmodel.UserListViewModelFactory
 
-class PlantListFragment : Fragment() {
-    private var _binding: FragmentPlantListBinding? = null
+class UserListFragment : Fragment() {
+    private var _binding: FragmentUserListBinding? = null
     private val binding get() = _binding!!
 
-    private val plantListAdapter: PlantListAdapter by lazy {
-        PlantListAdapter(object : PlantClickListener {
-            override fun onPlantClick(position: Int) {
-                viewModel.onPlantClick(position)
+    private val userListAdapter: UserListAdapter by lazy {
+        UserListAdapter(object : UserClickListener {
+            override fun onUserClick(position: Int) {
+                viewModel.onUserClick(position)
             }
 
-            override fun onPlantLongClick(position: Int) {
-                viewModel.onPlantLongClick(position)
+            override fun onUserLongClick(position: Int) {
+                viewModel.onUserLongClick(position)
             }
         })
     }
 
     private val viewModel: SharedViewModel by activityViewModels(
-        factoryProducer = { PlantListViewModelFactory(plantListAdapter) }
+        factoryProducer = { UserListViewModelFactory(userListAdapter) }
     )
 
     private val layoutManager by lazy { GridLayoutManager(context, DEFAULT_SPAN_COUNT) }
@@ -67,11 +67,11 @@ class PlantListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         setHasOptionsMenu(true)
-        _binding = FragmentPlantListBinding.inflate(inflater, container, false)
+        _binding = FragmentUserListBinding.inflate(inflater, container, false)
         val view = binding.root
 
         viewModel.showDetail.observe(requireActivity(), EventObserver { plantData ->
-            val action = PlantListFragmentDirections.detailAction(plantData)
+            val action = UserListFragmentDirections.detailAction(plantData)
             findNavController().navigate(action)
         })
 
@@ -90,7 +90,7 @@ class PlantListFragment : Fragment() {
         configureRecyclerView(layoutManager)
         setSpanSize(layoutManager)
 
-        if (plantListAdapter.items.isEmpty()) {
+        if (userListAdapter.items.isEmpty()) {
             viewModel.getUserList()
         }
 
@@ -109,7 +109,7 @@ class PlantListFragment : Fragment() {
     private fun setSpanSize(layoutManager: GridLayoutManager) {
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return when (plantListAdapter.getItemViewType(position)) {
+                return when (userListAdapter.getItemViewType(position)) {
                     VIEW_TYPE_LOADING -> DEFAULT_SPAN_COUNT
                     else -> 1
                 }
@@ -122,9 +122,9 @@ class PlantListFragment : Fragment() {
 
         recyclerView = binding.rvPlantList.apply {
             this.layoutManager = layoutManager
-            adapter = plantListAdapter
+            adapter = userListAdapter
             itemAnimator = null
-            addItemDecoration(PlantListItemDecoration(DEFAULT_SPAN_COUNT, px, true))
+            addItemDecoration(UserListItemDecoration(DEFAULT_SPAN_COUNT, px, true))
             addOnScrollListener(scrollListener)
         }
     }

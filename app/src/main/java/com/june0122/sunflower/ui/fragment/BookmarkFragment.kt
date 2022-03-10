@@ -11,39 +11,39 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentBookmarkBinding
-import com.june0122.sunflower.model.data.Plant
-import com.june0122.sunflower.ui.adapter.PlantListAdapter
-import com.june0122.sunflower.utils.PlantClickListener
-import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
-import com.june0122.sunflower.viewmodel.PlantListViewModelFactory
+import com.june0122.sunflower.model.data.User
+import com.june0122.sunflower.ui.adapter.UserListAdapter
+import com.june0122.sunflower.utils.UserClickListener
+import com.june0122.sunflower.utils.decoration.UserListItemDecoration
 import com.june0122.sunflower.viewmodel.SharedViewModel
+import com.june0122.sunflower.viewmodel.UserListViewModelFactory
 
 class BookmarkFragment : Fragment() {
     private var _binding: FragmentBookmarkBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: SharedViewModel by activityViewModels(
-        factoryProducer = { PlantListViewModelFactory(bookmarkAdapter) }
+        factoryProducer = { UserListViewModelFactory(bookmarkAdapter) }
     )
 
-    private val bookmarkAdapter: PlantListAdapter by lazy {
-        PlantListAdapter(object : PlantClickListener {
-            override fun onPlantClick(position: Int) {
+    private val bookmarkAdapter: UserListAdapter by lazy {
+        UserListAdapter(object : UserClickListener {
+            override fun onUserClick(position: Int) {
                 val item = bookmarkAdapter.items[position]
                 val action = BookmarkFragmentDirections.detailAction(
-                    userData = item as Plant,
+                    userData = item as User,
                     bookmarkStatus = true
                 )
                 findNavController().navigate(action)
             }
 
-            override fun onPlantLongClick(position: Int) {
+            override fun onUserLongClick(position: Int) {
                 val item = bookmarkAdapter.items[position]
             }
         })
     }
 
-    private val layoutManager by lazy { GridLayoutManager(context, PlantListFragment.DEFAULT_SPAN_COUNT) }
+    private val layoutManager by lazy { GridLayoutManager(context, UserListFragment.DEFAULT_SPAN_COUNT) }
 
     private lateinit var recyclerView: RecyclerView
 
@@ -78,7 +78,7 @@ class BookmarkFragment : Fragment() {
             this.layoutManager = layoutManager
             adapter = bookmarkAdapter
             itemAnimator = null
-            addItemDecoration(PlantListItemDecoration(PlantListFragment.DEFAULT_SPAN_COUNT, px, true))
+            addItemDecoration(UserListItemDecoration(UserListFragment.DEFAULT_SPAN_COUNT, px, true))
         }
     }
 }

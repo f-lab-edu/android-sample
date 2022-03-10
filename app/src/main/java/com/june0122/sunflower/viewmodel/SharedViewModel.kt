@@ -8,33 +8,33 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.R
-import com.june0122.sunflower.model.data.Plant
-import com.june0122.sunflower.model.data.PlantData
 import com.june0122.sunflower.model.data.Progress
+import com.june0122.sunflower.model.data.User
+import com.june0122.sunflower.model.data.UserData
 import com.june0122.sunflower.model.data.Users
 import com.june0122.sunflower.network.RetrofitClientInstance
-import com.june0122.sunflower.ui.adapter.PlantListAdapter
+import com.june0122.sunflower.ui.adapter.UserListAdapter
 import com.june0122.sunflower.utils.Event
-import com.june0122.sunflower.utils.PlantClickListener
+import com.june0122.sunflower.utils.UserClickListener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class SharedViewModel(
-    private val plantListAdapter: PlantListAdapter,
-) : ViewModel(), PlantClickListener {
+    private val userListAdapter: UserListAdapter,
+) : ViewModel(), UserClickListener {
     private val _statusMessage = MutableLiveData<Event<String>>()
     val statusMessage: LiveData<Event<String>> = _statusMessage
 
-    private val _showDetail = MutableLiveData<Event<Plant>>()
-    val showDetail: LiveData<Event<Plant>> = _showDetail
+    private val _showDetail = MutableLiveData<Event<User>>()
+    val showDetail: LiveData<Event<User>> = _showDetail
 
-    private val _items = MutableLiveData<List<PlantData>>()
-    val items: LiveData<List<PlantData>> = _items
+    private val _items = MutableLiveData<List<UserData>>()
+    val items: LiveData<List<UserData>> = _items
 
-    private val bookmarkList = mutableListOf<Plant>()
-    private val _bookmarks = MutableLiveData<List<PlantData>>()
-    val bookmarks: LiveData<List<PlantData>> = _bookmarks
+    private val bookmarkList = mutableListOf<User>()
+    private val _bookmarks = MutableLiveData<List<UserData>>()
+    val bookmarks: LiveData<List<UserData>> = _bookmarks
 
     private var itemCount = 0
     private var currentPage = 1
@@ -42,13 +42,13 @@ class SharedViewModel(
     private var lastPage = 0
     private var progressPosition = 0
 
-    override fun onPlantClick(position: Int) {
-        val item = plantListAdapter.items[position]
-        _showDetail.value = Event(item as Plant)
+    override fun onUserClick(position: Int) {
+        val item = userListAdapter.items[position]
+        _showDetail.value = Event(item as User)
     }
 
-    override fun onPlantLongClick(position: Int) {
-        val item = plantListAdapter.items[position]
+    override fun onUserLongClick(position: Int) {
+        val item = userListAdapter.items[position]
     }
 
     fun loadNextPage(
@@ -89,29 +89,29 @@ class SharedViewModel(
         if (itemCount != 0) deleteProgress(progressPosition)
         lastPage = (users.total_count / perPage) + 1
         val newData = users.items.map {
-            Plant(imageUrl = it.avatarUrl, name = it.login, description = "")
+            User(imageUrl = it.avatarUrl, name = it.login, description = "")
         }
-        _items.postValue(plantListAdapter.items.apply { addAll(newData) })
-        plantListAdapter.notifyItemRangeInserted(itemCount, users.items.size)
+        _items.postValue(userListAdapter.items.apply { addAll(newData) })
+        userListAdapter.notifyItemRangeInserted(itemCount, users.items.size)
         itemCount += users.items.size
     }
 
     private fun scrollToProgress(smoothScroller: LinearSmoothScroller, layoutManager: GridLayoutManager) {
-        smoothScroller.targetPosition = plantListAdapter.itemCount
+        smoothScroller.targetPosition = userListAdapter.itemCount
         layoutManager.startSmoothScroll(smoothScroller)
     }
 
     private fun addProgress() {
-        _items.value = plantListAdapter.items.apply { add(Progress) }
-        plantListAdapter.notifyItemInserted(progressPosition)
+        _items.value = userListAdapter.items.apply { add(Progress) }
+        userListAdapter.notifyItemInserted(progressPosition)
     }
 
     private fun deleteProgress(position: Int) {
-        _items.value = plantListAdapter.items.apply { removeAt(position) }
-        plantListAdapter.notifyItemRemoved(position)
+        _items.value = userListAdapter.items.apply { removeAt(position) }
+        userListAdapter.notifyItemRemoved(position)
     }
 
-    fun setBookmark(fab: FloatingActionButton, data: Plant) {
+    fun setBookmark(fab: FloatingActionButton, data: User) {
         if (data in bookmarkList) {
             _bookmarks.value = bookmarkList.apply { remove(data) }
             fab.setImageResource(R.drawable.ic_bookmark)
@@ -127,7 +127,7 @@ class SharedViewModel(
         }
     }
 
-    fun checkBookmark(fab: FloatingActionButton, data: Plant) {
+    fun checkBookmark(fab: FloatingActionButton, data: User) {
         if (data in bookmarkList) {
             fab.setImageResource(R.drawable.ic_bookmark_filled)
         }

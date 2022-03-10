@@ -8,44 +8,44 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import coil.load
-import com.june0122.sunflower.databinding.FragmentPlantDetailBinding
-import com.june0122.sunflower.model.data.Plant
-import com.june0122.sunflower.ui.adapter.PlantListAdapter
-import com.june0122.sunflower.utils.PlantClickListener
-import com.june0122.sunflower.viewmodel.PlantListViewModelFactory
+import com.june0122.sunflower.databinding.FragmentUserDetailBinding
+import com.june0122.sunflower.model.data.User
+import com.june0122.sunflower.ui.adapter.UserListAdapter
+import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.viewmodel.SharedViewModel
+import com.june0122.sunflower.viewmodel.UserListViewModelFactory
 
-class PlantDetailFragment : Fragment() {
-    private var _binding: FragmentPlantDetailBinding? = null
+class UserDetailFragment : Fragment() {
+    private var _binding: FragmentUserDetailBinding? = null
     private val binding get() = _binding!!
     private var bookmarkStatus = false
-    private lateinit var data: Plant
+    private lateinit var data: User
 
-    private val plantListAdapter: PlantListAdapter by lazy {
-        PlantListAdapter(object : PlantClickListener {
-            override fun onPlantClick(position: Int) {
-                viewModel.onPlantClick(position)
+    private val userListAdapter: UserListAdapter by lazy {
+        UserListAdapter(object : UserClickListener {
+            override fun onUserClick(position: Int) {
+                viewModel.onUserClick(position)
             }
 
-            override fun onPlantLongClick(position: Int) {
-                viewModel.onPlantLongClick(position)
+            override fun onUserLongClick(position: Int) {
+                viewModel.onUserLongClick(position)
             }
         })
     }
 
     private val viewModel: SharedViewModel by activityViewModels(
-        factoryProducer = { PlantListViewModelFactory(plantListAdapter) }
+        factoryProducer = { UserListViewModelFactory(userListAdapter) }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val safeArgs: PlantDetailFragmentArgs by navArgs()
+        val safeArgs: UserDetailFragmentArgs by navArgs()
         data = safeArgs.userData
         bookmarkStatus = safeArgs.bookmarkStatus
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return FragmentPlantDetailBinding.inflate(inflater, container, false).also {
+        return FragmentUserDetailBinding.inflate(inflater, container, false).also {
             _binding = it
         }.root
     }

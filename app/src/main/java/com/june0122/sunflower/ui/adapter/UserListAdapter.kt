@@ -3,17 +3,17 @@ package com.june0122.sunflower.ui.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.june0122.sunflower.databinding.ItemPlantListBinding
 import com.june0122.sunflower.databinding.ItemProgressBinding
-import com.june0122.sunflower.model.data.Plant
-import com.june0122.sunflower.model.data.PlantData
+import com.june0122.sunflower.databinding.ItemUserListBinding
 import com.june0122.sunflower.model.data.Progress
-import com.june0122.sunflower.ui.viewholder.PlantListViewHolder
+import com.june0122.sunflower.model.data.User
+import com.june0122.sunflower.model.data.UserData
 import com.june0122.sunflower.ui.viewholder.ProgressHolder
-import com.june0122.sunflower.utils.PlantClickListener
+import com.june0122.sunflower.ui.viewholder.UserListViewHolder
+import com.june0122.sunflower.utils.UserClickListener
 
-class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val _items = mutableListOf<PlantData>()
+class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val _items = mutableListOf<UserData>()
     val items get() = _items
 
     override fun getItemViewType(position: Int): Int {
@@ -27,8 +27,8 @@ class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.
         return when(viewType) {
             VIEW_TYPE_ITEM -> {
                 val binding =
-                    ItemPlantListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                PlantListViewHolder(binding, listener)
+                    ItemUserListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                UserListViewHolder(binding, listener)
             }
             else -> {
                 val binding =
@@ -42,7 +42,7 @@ class PlantListAdapter(private val listener: PlantClickListener) : RecyclerView.
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val data = items[holder.absoluteAdapterPosition]) {
-            is Plant -> if (holder is PlantListViewHolder) holder.bind(data)
+            is User -> if (holder is UserListViewHolder) holder.bind(data)
             is Progress -> {}
         }
     }
