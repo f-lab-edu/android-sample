@@ -29,5 +29,9 @@
         android:id="@+id/bookmark_dest"
         android:name="com.june0122.sunflower.ui.fragment.BookmarkFragment"
         android:label="Bookmark"
-        tools:layout="@layout/fragment_bookmark" />
+        tools:layout="@layout/fragment_bookmark" >
+        <action
+            android:id="@+id/detail_action"
+            app:destination="@id/detail_dest" />
+    </fragment>
 </navigation>
