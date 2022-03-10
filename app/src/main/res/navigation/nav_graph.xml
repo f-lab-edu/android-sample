@@ -23,6 +23,10 @@
         <argument
             android:name="userData"
             app:argType="com.june0122.sunflower.model.data.Plant" />
+        <argument
+            android:name="bookmarkStatus"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
 
     <fragment
@@ -30,8 +34,13 @@
         android:name="com.june0122.sunflower.ui.fragment.BookmarkFragment"
         android:label="Bookmark"
         tools:layout="@layout/fragment_bookmark" >
+
         <action
             android:id="@+id/detail_action"
-            app:destination="@id/detail_dest" />
+            app:destination="@id/detail_dest" >
+            <argument
+                android:name="bookmarkStatus"
+                android:defaultValue="true" />
+        </action>
     </fragment>
 </navigation>
