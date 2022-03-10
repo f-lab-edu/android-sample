@@ -1,11 +1,13 @@
 package com.june0122.sunflower.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import com.june0122.sunflower.R
 import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.model.data.PlantData
 import com.june0122.sunflower.model.data.Progress
@@ -23,6 +25,7 @@ class SharedViewModel(
 ) : ViewModel(), PlantClickListener {
     private val _statusMessage = MutableLiveData<Event<String>>()
     val statusMessage: LiveData<Event<String>> = _statusMessage
+
     private val _showDetail = MutableLiveData<Event<Plant>>()
     val showDetail: LiveData<Event<Plant>> = _showDetail
 
@@ -30,9 +33,8 @@ class SharedViewModel(
     val items: LiveData<List<PlantData>> = _items
 
     private val bookmarkList = mutableListOf<Plant>()
-
-    private val _bookmarks = MutableLiveData<Event<List<PlantData>>>()
-    val bookmarks: LiveData<Event<List<PlantData>>> = _bookmarks
+    private val _bookmarks = MutableLiveData<List<PlantData>>()
+    val bookmarks: LiveData<List<PlantData>> = _bookmarks
 
     private var itemCount = 0
     private var currentPage = 1
@@ -90,8 +92,6 @@ class SharedViewModel(
             Plant(imageUrl = it.avatarUrl, name = it.login, description = "")
         }
         _items.postValue(plantListAdapter.items.apply { addAll(newData) })
-//        _items.value = plantListAdapter.items.apply { addAll(newData) }
-//        items.addAll(newData)
         plantListAdapter.notifyItemRangeInserted(itemCount, users.items.size)
         itemCount += users.items.size
     }
@@ -108,13 +108,28 @@ class SharedViewModel(
 
     private fun deleteProgress(position: Int) {
         _items.value = plantListAdapter.items.apply { removeAt(position) }
-//        items.removeAt(position)
         plantListAdapter.notifyItemRemoved(position)
     }
 
-    fun addBookmark(data: Plant) {
-        _bookmarks.value = Event(bookmarkList.apply { add(data) })
-        Log.d("Check", "_bookmarks - ${_bookmarks.value}")
-        Log.d("Check", "bookmarks - ${bookmarks.value}")
+    fun setBookmark(fab: FloatingActionButton, data: Plant) {
+        if (data in bookmarkList) {
+            _bookmarks.value = bookmarkList.apply { remove(data) }
+            fab.setImageResource(R.drawable.ic_bookmark)
+            Snackbar.make(fab, "Disable bookmark", Snackbar.LENGTH_LONG)
+                .setAction("Action", null)
+                .show()
+        } else {
+            _bookmarks.value = bookmarkList.apply { add(data) }
+            fab.setImageResource(R.drawable.ic_bookmark_filled)
+            Snackbar.make(fab, "Enable bookmark", Snackbar.LENGTH_LONG)
+                .setAction("Action", null)
+                .show()
+        }
+    }
+
+    fun checkBookmark(fab: FloatingActionButton, data: Plant) {
+        if (data in bookmarkList) {
+            fab.setImageResource(R.drawable.ic_bookmark_filled)
+        }
     }
 }

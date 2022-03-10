@@ -1,16 +1,13 @@
 package com.june0122.sunflower.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import coil.load
-import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.databinding.FragmentPlantDetailBinding
 import com.june0122.sunflower.model.data.Plant
 import com.june0122.sunflower.ui.adapter.PlantListAdapter
@@ -21,6 +18,7 @@ import com.june0122.sunflower.viewmodel.SharedViewModel
 class PlantDetailFragment : Fragment() {
     private var _binding: FragmentPlantDetailBinding? = null
     private val binding get() = _binding!!
+    private var bookmarkStatus = false
     private lateinit var data: Plant
 
     private val plantListAdapter: PlantListAdapter by lazy {
@@ -43,6 +41,7 @@ class PlantDetailFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val safeArgs: PlantDetailFragmentArgs by navArgs()
         data = safeArgs.userData
+        bookmarkStatus = safeArgs.bookmarkStatus
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -60,18 +59,11 @@ class PlantDetailFragment : Fragment() {
         }
         binding.tvPlantName.text = data.name
         binding.tvDescription.text = data.description
-        binding.fabFavorite.setOnClickListener { fab ->
-            viewModel.addBookmark(data)
-
-            Snackbar.make(fab, "Added to bookmark", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show()
-
-            val layoutParams = fab.layoutParams as CoordinatorLayout.LayoutParams
-            layoutParams.anchorId = View.NO_ID
-            fab.layoutParams = layoutParams
-            fab.visibility = View.GONE
+        binding.fabFavorite.setOnClickListener {
+            viewModel.setBookmark(binding.fabFavorite, data)
         }
+
+        viewModel.checkBookmark(binding.fabFavorite, data)
     }
 
     override fun onDestroyView() {
