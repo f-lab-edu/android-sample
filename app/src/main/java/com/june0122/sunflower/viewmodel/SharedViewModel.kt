@@ -1,5 +1,6 @@
 package com.june0122.sunflower.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,7 +18,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class PlantListViewModel(
+class SharedViewModel(
     private val plantListAdapter: PlantListAdapter,
 ) : ViewModel(), PlantClickListener {
     private val _statusMessage = MutableLiveData<Event<String>>()
@@ -27,6 +28,11 @@ class PlantListViewModel(
 
     private val _items = MutableLiveData<List<PlantData>>()
     val items: LiveData<List<PlantData>> = _items
+
+    private val bookmarkList = mutableListOf<Plant>()
+
+    private val _bookmarks = MutableLiveData<Event<List<PlantData>>>()
+    val bookmarks: LiveData<Event<List<PlantData>>> = _bookmarks
 
     private var itemCount = 0
     private var currentPage = 1
@@ -104,5 +110,11 @@ class PlantListViewModel(
         _items.value = plantListAdapter.items.apply { removeAt(position) }
 //        items.removeAt(position)
         plantListAdapter.notifyItemRemoved(position)
+    }
+
+    fun addBookmark(data: Plant) {
+        _bookmarks.value = Event(bookmarkList.apply { add(data) })
+        Log.d("Check", "_bookmarks - ${_bookmarks.value}")
+        Log.d("Check", "bookmarks - ${bookmarks.value}")
     }
 }
