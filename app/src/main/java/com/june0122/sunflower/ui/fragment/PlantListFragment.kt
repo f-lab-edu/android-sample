@@ -97,19 +97,6 @@ class PlantListFragment : Fragment() {
         viewModel.statusMessage.observe(requireActivity()) { event ->
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
         }
-
-//        binding.fabAddPlant.setOnClickListener {
-//            // 데이터를 직접 입력해서 아이템을 추가하는 식으로 변경 예정
-//            // api로부터 데이터를 받아오는 화면이기 때문에 여기서는 아이템을 추가할 필요 없음
-//            viewModel.items.add(
-//                Plant(
-//                    imageUrl = "https://avatars.githubusercontent.com/u/39554623?v=4",
-//                    name = "june0122",
-//                    description = "Junior Android Developer"
-//                )
-//            )
-//            plantListAdapter.notifyItemInserted(viewModel.items.size)
-//        }
     }
 
     override fun onDestroyView() {
