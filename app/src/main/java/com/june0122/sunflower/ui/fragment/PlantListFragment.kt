@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -18,8 +18,8 @@ import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.PlantClickListener
 import com.june0122.sunflower.utils.decoration.PlantListItemDecoration
 import com.june0122.sunflower.utils.toast
-import com.june0122.sunflower.viewmodel.PlantListViewModel
 import com.june0122.sunflower.viewmodel.PlantListViewModelFactory
+import com.june0122.sunflower.viewmodel.SharedViewModel
 
 class PlantListFragment : Fragment() {
     private var _binding: FragmentPlantListBinding? = null
@@ -37,7 +37,7 @@ class PlantListFragment : Fragment() {
         })
     }
 
-    private val viewModel: PlantListViewModel by viewModels(
+    private val viewModel: SharedViewModel by activityViewModels(
         factoryProducer = { PlantListViewModelFactory(plantListAdapter) }
     )
 
@@ -90,7 +90,9 @@ class PlantListFragment : Fragment() {
         configureRecyclerView(layoutManager)
         setSpanSize(layoutManager)
 
-        if (plantListAdapter.items.isEmpty()) { viewModel.getUserList() }
+        if (plantListAdapter.items.isEmpty()) {
+            viewModel.getUserList()
+        }
 
         viewModel.statusMessage.observe(requireActivity()) { event ->
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
@@ -141,6 +143,6 @@ class PlantListFragment : Fragment() {
     }
 
     companion object {
-        private const val DEFAULT_SPAN_COUNT = 2
+        const val DEFAULT_SPAN_COUNT = 2
     }
 }
