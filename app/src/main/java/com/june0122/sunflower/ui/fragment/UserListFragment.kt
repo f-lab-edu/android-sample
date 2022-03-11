@@ -18,7 +18,7 @@ import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
 import com.june0122.sunflower.utils.toast
-import com.june0122.sunflower.viewmodel.SharedViewModel
+import com.june0122.sunflower.viewmodel.UserSharedViewModel
 import com.june0122.sunflower.viewmodel.UserListViewModelFactory
 
 class UserListFragment : Fragment() {
@@ -37,7 +37,7 @@ class UserListFragment : Fragment() {
         })
     }
 
-    private val viewModel: SharedViewModel by activityViewModels(
+    private val viewModel: UserSharedViewModel by activityViewModels(
         factoryProducer = { UserListViewModelFactory(userListAdapter) }
     )
 

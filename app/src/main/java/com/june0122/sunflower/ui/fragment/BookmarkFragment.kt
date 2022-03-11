@@ -15,14 +15,14 @@ import com.june0122.sunflower.model.data.User
 import com.june0122.sunflower.ui.adapter.UserListAdapter
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
-import com.june0122.sunflower.viewmodel.SharedViewModel
+import com.june0122.sunflower.viewmodel.UserSharedViewModel
 import com.june0122.sunflower.viewmodel.UserListViewModelFactory
 
 class BookmarkFragment : Fragment() {
     private var _binding: FragmentBookmarkBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: SharedViewModel by activityViewModels(
+    private val viewModel: UserSharedViewModel by activityViewModels(
         factoryProducer = { UserListViewModelFactory(bookmarkAdapter) }
     )
 

@@ -20,7 +20,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class SharedViewModel(
+class UserSharedViewModel(
     private val userListAdapter: UserListAdapter,
 ) : ViewModel(), UserClickListener {
     private val _statusMessage = MutableLiveData<Event<String>>()

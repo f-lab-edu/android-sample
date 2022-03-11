@@ -12,7 +12,7 @@ import com.june0122.sunflower.databinding.FragmentUserDetailBinding
 import com.june0122.sunflower.model.data.User
 import com.june0122.sunflower.ui.adapter.UserListAdapter
 import com.june0122.sunflower.utils.UserClickListener
-import com.june0122.sunflower.viewmodel.SharedViewModel
+import com.june0122.sunflower.viewmodel.UserSharedViewModel
 import com.june0122.sunflower.viewmodel.UserListViewModelFactory
 
 class UserDetailFragment : Fragment() {
@@ -33,7 +33,7 @@ class UserDetailFragment : Fragment() {
         })
     }
 
-    private val viewModel: SharedViewModel by activityViewModels(
+    private val viewModel: UserSharedViewModel by activityViewModels(
         factoryProducer = { UserListViewModelFactory(userListAdapter) }
     )
 
