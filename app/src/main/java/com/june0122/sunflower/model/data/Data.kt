@@ -4,24 +4,24 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
-sealed class PlantData
+sealed class UserData
 
-object Progress : PlantData()
+object Progress : UserData()
 
 @Parcelize
-data class Plant(
+data class User(
     val imageUrl: String,
     val name: String,
     val description: String,
-) : Parcelable, PlantData()
+) : Parcelable, UserData()
 
 data class Users(
     @field:SerializedName("") val incomplete_results: Boolean,
-    val items: List<User>,
+    val items: List<UserInfo>,
     val total_count: Int
 )
 
-data class User(
+data class UserInfo(
     @field:SerializedName("avatar_url") val avatarUrl: String,
     @field:SerializedName("events_url") val eventsUrl: String,
     @field:SerializedName("followers_url") val followersUrl: String,
@@ -43,7 +43,7 @@ data class User(
     @field:SerializedName("url") val url: String
 )
 
-data class UserDetail(
+data class UserInfoDetail(
     @field:SerializedName("avatar_url") val avatarUrl: String,
     @field:SerializedName("bio") val bio: String,
     @field:SerializedName("blog") val blog: String,

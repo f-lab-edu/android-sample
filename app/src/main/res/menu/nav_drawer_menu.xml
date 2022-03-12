@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/primary">
+        <item
+            android:id="@+id/user_list_dest"
+            android:icon="@drawable/ic_user_list"
+            android:iconTint="@color/sunflower_black"
+            android:title="User List" />
+        <item
+            android:id="@+id/bookmark_dest"
+            android:icon="@drawable/ic_bookmark"
+            android:iconTint="@color/sunflower_black"
+            android:title="Bookmark" />
+    </group>
+</menu>

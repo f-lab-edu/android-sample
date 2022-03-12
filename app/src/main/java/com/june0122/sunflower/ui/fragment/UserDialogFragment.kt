@@ -7,25 +7,25 @@ import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.june0122.sunflower.R
-import com.june0122.sunflower.model.data.Plant
+import com.june0122.sunflower.model.data.User
 
-class PlantDialogFragment : DialogFragment() {
+class UserDialogFragment : DialogFragment() {
 
     companion object {
         private const val PLANT_DATA = "plant_data"
-        fun newInstance(plantData: Plant): PlantDialogFragment {
+        fun newInstance(userData: User): UserDialogFragment {
             val args = bundleOf(
-                PLANT_DATA to plantData
+                PLANT_DATA to userData
             )
 
-            return PlantDialogFragment().apply {
+            return UserDialogFragment().apply {
                 arguments = args
             }
         }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val plantData = arguments?.getParcelable<Plant>(PLANT_DATA)
+        val plantData = arguments?.getParcelable<User>(PLANT_DATA)
         return activity?.let {
             val builder = AlertDialog.Builder(it).apply {
                 setTitle("${plantData?.name}")

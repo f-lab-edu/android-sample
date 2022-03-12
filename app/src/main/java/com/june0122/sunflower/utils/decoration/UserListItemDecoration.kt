@@ -5,7 +5,7 @@ import android.view.View
 import androidx.annotation.Px
 import androidx.recyclerview.widget.RecyclerView
 
-class PlantListItemDecoration(private val spanCount: Int, @Px private val spacing: Int, private val includeEdge: Boolean) :
+class UserListItemDecoration(private val spanCount: Int, @Px private val spacing: Int, private val includeEdge: Boolean) :
     RecyclerView.ItemDecoration() {
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         super.getItemOffsets(outRect, view, parent, state)

@@ -4,30 +4,30 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Scale
 import com.june0122.sunflower.R
-import com.june0122.sunflower.databinding.ItemPlantListBinding
-import com.june0122.sunflower.model.data.Plant
-import com.june0122.sunflower.utils.PlantClickListener
+import com.june0122.sunflower.databinding.ItemUserListBinding
+import com.june0122.sunflower.model.data.User
+import com.june0122.sunflower.utils.UserClickListener
 
-class PlantListViewHolder(binding: ItemPlantListBinding, listener: PlantClickListener) :
+class UserListViewHolder(binding: ItemUserListBinding, listener: UserClickListener) :
     RecyclerView.ViewHolder(binding.root) {
     private val plantNameTextView = binding.tvPlantName
     private val availablePlantImageView = binding.imgAvailablePlant
 
     init {
-        itemView.setOnClickListener { listener.onPlantClick(absoluteAdapterPosition) }
+        itemView.setOnClickListener { listener.onUserClick(absoluteAdapterPosition) }
         itemView.setOnLongClickListener {
-            listener.onPlantLongClick(absoluteAdapterPosition)
+            listener.onUserLongClick(absoluteAdapterPosition)
             return@setOnLongClickListener true
         }
     }
 
-    fun bind(plant: Plant) {
-        availablePlantImageView.load(plant.imageUrl) {
+    fun bind(user: User) {
+        availablePlantImageView.load(user.imageUrl) {
             placeholder(R.drawable.ic_placeholder)
             scale(Scale.FIT)
             crossfade(true)
             crossfade(300)
         }
-        plantNameTextView.text = plant.name
+        plantNameTextView.text = user.name
     }
 }
