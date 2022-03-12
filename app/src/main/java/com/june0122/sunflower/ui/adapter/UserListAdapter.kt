@@ -12,19 +12,20 @@ import com.june0122.sunflower.ui.viewholder.ProgressHolder
 import com.june0122.sunflower.ui.viewholder.UserListViewHolder
 import com.june0122.sunflower.utils.UserClickListener
 
-class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    UserListAdapterEvent {
     private val _items = mutableListOf<UserData>()
-    val items get() = _items
+//    val items get() = _items
 
     override fun getItemViewType(position: Int): Int {
-        return when(items[position]) {
+        return when (_items[position]) {
             is Progress -> VIEW_TYPE_LOADING
             else -> VIEW_TYPE_ITEM
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when(viewType) {
+        return when (viewType) {
             VIEW_TYPE_ITEM -> {
                 val binding =
                     ItemUserListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -41,10 +42,37 @@ class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Ad
     override fun getItemCount(): Int = _items.count()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val data = items[holder.absoluteAdapterPosition]) {
+        when (val data = _items[holder.absoluteAdapterPosition]) {
             is User -> if (holder is UserListViewHolder) holder.bind(data)
             is Progress -> {}
         }
+    }
+
+    override fun get(position: Int): UserData {
+        return _items[position]
+    }
+
+    override fun add(item: UserData) {
+        _items.add(item)
+        this.notifyItemInserted(_items.count())
+    }
+
+    override fun addAll(items: List<UserData>) {
+        _items.addAll(items)
+        this.notifyItemRangeInserted(itemCount, items.size)
+    }
+
+    override fun remove(position: Int) {
+        _items.removeAt(position)
+        this.notifyItemRemoved(position)
+    }
+
+    override fun clear() {
+        _items.clear()
+    }
+
+    override fun isEmpty(): Boolean {
+        return _items.isEmpty()
     }
 
     companion object {

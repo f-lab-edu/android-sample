@@ -29,7 +29,7 @@ class BookmarkFragment : Fragment() {
     private val bookmarkAdapter: UserListAdapter by lazy {
         UserListAdapter(object : UserClickListener {
             override fun onUserClick(position: Int) {
-                val item = bookmarkAdapter.items[position]
+                val item = bookmarkAdapter[position]
                 val action = BookmarkFragmentDirections.detailAction(
                     userData = item as User,
                     bookmarkStatus = true
@@ -38,7 +38,7 @@ class BookmarkFragment : Fragment() {
             }
 
             override fun onUserLongClick(position: Int) {
-                val item = bookmarkAdapter.items[position]
+                val item = bookmarkAdapter[position]
             }
         })
     }
@@ -53,8 +53,8 @@ class BookmarkFragment : Fragment() {
 
         viewModel.bookmarks.observe(viewLifecycleOwner) {
             // 북마크 화면에서 아이템을 클릭 후 되돌아올때 이벤트 감지하므로 모두 지우고 추가 (더 나은 방법 고민해보기)
-            bookmarkAdapter.items.clear()
-            bookmarkAdapter.items.addAll(it)
+            bookmarkAdapter.clear()
+            bookmarkAdapter.addAll(it)
         }
 
         return view

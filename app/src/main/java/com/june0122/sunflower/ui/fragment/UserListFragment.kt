@@ -90,7 +90,7 @@ class UserListFragment : Fragment() {
         configureRecyclerView(layoutManager)
         setSpanSize(layoutManager)
 
-        if (userListAdapter.items.isEmpty()) {
+        if (userListAdapter.isEmpty()) {
             viewModel.getUserList()
         }
 

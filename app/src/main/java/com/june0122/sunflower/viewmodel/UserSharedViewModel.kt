@@ -29,9 +29,6 @@ class UserSharedViewModel(
     private val _showDetail = MutableLiveData<Event<User>>()
     val showDetail: LiveData<Event<User>> = _showDetail
 
-    private val _items = MutableLiveData<List<UserData>>()
-    val items: LiveData<List<UserData>> = _items
-
     private val bookmarkList = mutableListOf<User>()
     private val _bookmarks = MutableLiveData<List<UserData>>()
     val bookmarks: LiveData<List<UserData>> = _bookmarks
@@ -43,12 +40,12 @@ class UserSharedViewModel(
     private var progressPosition = 0
 
     override fun onUserClick(position: Int) {
-        val item = userListAdapter.items[position]
+        val item = userListAdapter[position]
         _showDetail.value = Event(item as User)
     }
 
     override fun onUserLongClick(position: Int) {
-        val item = userListAdapter.items[position]
+        val item = userListAdapter[position]
     }
 
     fun loadNextPage(
@@ -91,9 +88,8 @@ class UserSharedViewModel(
         val newData = users.items.map {
             User(imageUrl = it.avatarUrl, name = it.login, description = "")
         }
-        _items.postValue(userListAdapter.items.apply { addAll(newData) })
-        userListAdapter.notifyItemRangeInserted(itemCount, users.items.size)
-        itemCount += users.items.size
+        userListAdapter.addAll(newData)
+        itemCount += newData.size
     }
 
     private fun scrollToProgress(smoothScroller: LinearSmoothScroller, layoutManager: GridLayoutManager) {
@@ -102,13 +98,11 @@ class UserSharedViewModel(
     }
 
     private fun addProgress() {
-        _items.value = userListAdapter.items.apply { add(Progress) }
-        userListAdapter.notifyItemInserted(progressPosition)
+        userListAdapter.add(Progress)
     }
 
     private fun deleteProgress(position: Int) {
-        _items.value = userListAdapter.items.apply { removeAt(position) }
-        userListAdapter.notifyItemRemoved(position)
+        userListAdapter.remove(position)
     }
 
     fun setBookmark(fab: FloatingActionButton, data: User) {
