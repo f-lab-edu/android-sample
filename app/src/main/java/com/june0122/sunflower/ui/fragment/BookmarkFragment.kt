@@ -14,6 +14,7 @@ import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentBookmarkBinding
 import com.june0122.sunflower.model.data.User
 import com.june0122.sunflower.ui.adapter.UserListAdapter
+import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
 import com.june0122.sunflower.viewmodel.UserSharedViewModel
@@ -52,10 +53,10 @@ class BookmarkFragment : Fragment() {
         _binding = FragmentBookmarkBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        viewModel.bookmarks.observe(viewLifecycleOwner) {
-            bookmarkAdapter.addAll(it)
-            bookmarkAdapter.submitList(it)
-        }
+        viewModel.bookmarks.observe(viewLifecycleOwner, EventObserver {
+            bookmarkAdapter.updateUserListItems(it)
+        })
+
 
         return view
     }

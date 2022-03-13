@@ -33,8 +33,8 @@ class UserSharedViewModel(
     val showDetail: LiveData<Event<User>> = _showDetail
 
     private val bookmarkList = mutableListOf<User>()
-    private val _bookmarks = MutableLiveData<List<UserData>>()
-    val bookmarks: LiveData<List<UserData>> = _bookmarks
+    private val _bookmarks = MutableLiveData<Event<List<UserData>>>()
+    val bookmarks: LiveData<Event<List<UserData>>> = _bookmarks
 
     private var currentPage = 1
     private var perPage = 20
@@ -104,8 +104,8 @@ class UserSharedViewModel(
     }
 
     private fun addProgress() {
+        progressPosition = userListAdapter.itemCount
         userListAdapter.add(Progress)
-        progressPosition = userListAdapter.itemCount - 1
     }
 
     private fun deleteProgress(position: Int) {
@@ -114,13 +114,13 @@ class UserSharedViewModel(
 
     fun setBookmark(fab: FloatingActionButton, data: User) {
         if (data in bookmarkList) {
-            _bookmarks.value = bookmarkList.apply { remove(data) }
+            _bookmarks.value = Event(bookmarkList.apply { remove(data) })
             fab.setImageResource(R.drawable.ic_bookmark)
             Snackbar.make(fab, "Disable bookmark", Snackbar.LENGTH_LONG)
                 .setAction("Action", null)
                 .show()
         } else {
-            _bookmarks.value = bookmarkList.apply { add(data) }
+            _bookmarks.value = Event(bookmarkList.apply { add(data) })
             fab.setImageResource(R.drawable.ic_bookmark_filled)
             Snackbar.make(fab, "Enable bookmark", Snackbar.LENGTH_LONG)
                 .setAction("Action", null)
