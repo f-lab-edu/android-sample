@@ -23,8 +23,8 @@ import retrofit2.Response
 class UserSharedViewModel(
     private val userListAdapter: UserListAdapter,
 ) : ViewModel(), UserClickListener {
-    private val _items = MutableLiveData<List<UserData>>()
-    val items: LiveData<List<UserData>> = _items
+//    private val _items = MutableLiveData<List<UserData>>()
+//    val items: LiveData<List<UserData>> = _items
 
     private val _statusMessage = MutableLiveData<Event<String>>()
     val statusMessage: LiveData<Event<String>> = _statusMessage
@@ -36,15 +36,11 @@ class UserSharedViewModel(
     private val _bookmarks = MutableLiveData<List<UserData>>()
     val bookmarks: LiveData<List<UserData>> = _bookmarks
 
-    private var itemCount = 0
     private var currentPage = 1
     private var perPage = 20
     private var lastPage = 0
     private var progressPosition = 0
-
-    init {
-        _items.value = userListAdapter.items
-    }
+    private var isLoading = false
 
     override fun onUserClick(position: Int) {
         val item = userListAdapter[position]
@@ -61,16 +57,19 @@ class UserSharedViewModel(
         smoothScroller: LinearSmoothScroller,
         layoutManager: GridLayoutManager
     ) {
-        if (canScrollVertically && lastVisibleItemPosition == itemCount - 1) {
-            progressPosition = itemCount
-            if (currentPage < lastPage) addProgress()
+        if (canScrollVertically && lastVisibleItemPosition == userListAdapter.itemCount - 1 && isLoading.not()) {
+            if (currentPage < lastPage) {
+                addProgress()
+                scrollToProgress(smoothScroller, layoutManager)
+            }
             currentPage++
-            if (currentPage <= lastPage) getUserList()
-            scrollToProgress(smoothScroller, layoutManager)
+            if (currentPage <= lastPage && isLoading.not()) getUserList()
         }
     }
 
     fun getUserList() {
+        isLoading = true
+
         val userListCall: Call<Users> =
             RetrofitClientInstance().githubService.getUserList(query = "june", perPage, currentPage)
 
@@ -90,13 +89,13 @@ class UserSharedViewModel(
     }
 
     private fun updateUserList(users: Users) {
-        if (itemCount != 0) deleteProgress(progressPosition)
+        if (userListAdapter.itemCount != 0) deleteProgress(progressPosition)
         lastPage = (users.total_count / perPage) + 1
         val newData = users.items.map {
             User(imageUrl = it.avatarUrl, name = it.login, description = "")
         }
         userListAdapter.addAll(newData)
-        itemCount += newData.size
+        isLoading = false
     }
 
     private fun scrollToProgress(smoothScroller: LinearSmoothScroller, layoutManager: GridLayoutManager) {
@@ -106,6 +105,7 @@ class UserSharedViewModel(
 
     private fun addProgress() {
         userListAdapter.add(Progress)
+        progressPosition = userListAdapter.itemCount - 1
     }
 
     private fun deleteProgress(position: Int) {
