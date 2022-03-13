@@ -2,7 +2,7 @@ package com.june0122.sunflower.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.databinding.ItemProgressBinding
 import com.june0122.sunflower.databinding.ItemUserListBinding
@@ -14,12 +14,12 @@ import com.june0122.sunflower.ui.viewholder.UserListViewHolder
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.UserDiffCallback
 
-class UserListAdapter(private val listener: UserClickListener) :
-    ListAdapter<UserData, RecyclerView.ViewHolder>(UserDiffCallback()), UserListAdapterEvent {
-    private val newList = currentList.toMutableList()
+class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    UserListAdapterEvent {
+    private val userList = mutableListOf<UserData>()
 
     override fun getItemViewType(position: Int): Int {
-        return when (currentList[position]) {
+        return when (userList[position]) {
             is Progress -> VIEW_TYPE_LOADING
             else -> VIEW_TYPE_ITEM
         }
@@ -40,40 +40,52 @@ class UserListAdapter(private val listener: UserClickListener) :
         }
     }
 
+    override fun getItemCount(): Int = userList.size
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val data = currentList[holder.absoluteAdapterPosition]) {
+        when (val data = userList[holder.absoluteAdapterPosition]) {
             is User -> if (holder is UserListViewHolder) holder.bind(data)
             is Progress -> {}
         }
     }
 
-    override fun get(position: Int): UserData {
-        return currentList[position]
+    fun updateUserListItems(items: List<UserData>) {
+        val diffCallback = UserDiffCallback(userList, items)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        userList.clear()
+        userList.addAll(items)
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun add(item: UserData) {
+        val newList = mutableListOf<UserData>().apply { addAll(userList) }
         newList.add(item)
-//        submitList(newList) // submitList 사용 시 제대로 동작하지 않음
-        this.notifyItemInserted(this.itemCount)
+        updateUserListItems(newList)
     }
 
     override fun addAll(items: List<UserData>) {
+        val newList = mutableListOf<UserData>().apply { addAll(userList) }
         newList.addAll(items)
-        submitList(newList)
+        updateUserListItems(newList)
     }
 
+
     override fun remove(position: Int) {
+        val newList = mutableListOf<UserData>().apply { addAll(userList) }
         newList.removeAt(position)
-//        submitList(newList) // submitList 사용 시 제대로 동작하지 않음
-        this.notifyItemRemoved(position)
+        updateUserListItems(newList)
+    }
+
+    override fun get(position: Int): UserData {
+        return userList[position]
     }
 
     override fun clear() {
-        currentList.clear()
+        userList.clear()
     }
 
     override fun isEmpty(): Boolean {
-        return currentList.isEmpty()
+        return userList.isEmpty()
     }
 
     companion object {
