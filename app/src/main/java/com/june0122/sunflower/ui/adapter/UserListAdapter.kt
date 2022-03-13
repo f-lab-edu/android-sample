@@ -16,11 +16,10 @@ import com.june0122.sunflower.utils.UserDiffCallback
 
 class UserListAdapter(private val listener: UserClickListener) :
     ListAdapter<UserData, RecyclerView.ViewHolder>(UserDiffCallback()), UserListAdapterEvent {
-    private val _items = mutableListOf<UserData>()
-    val items = _items
+    private val newList = currentList.toMutableList()
 
     override fun getItemViewType(position: Int): Int {
-        return when (_items[position]) {
+        return when (currentList[position]) {
             is Progress -> VIEW_TYPE_LOADING
             else -> VIEW_TYPE_ITEM
         }
@@ -41,40 +40,40 @@ class UserListAdapter(private val listener: UserClickListener) :
         }
     }
 
-//    override fun getItemCount(): Int = _items.count()
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val data = _items[holder.absoluteAdapterPosition]) {
+        when (val data = currentList[holder.absoluteAdapterPosition]) {
             is User -> if (holder is UserListViewHolder) holder.bind(data)
             is Progress -> {}
         }
     }
 
     override fun get(position: Int): UserData {
-        return _items[position]
+        return currentList[position]
     }
 
     override fun add(item: UserData) {
-        _items.add(item)
-        this.notifyItemInserted(_items.count())
+        newList.add(item)
+//        submitList(newList) // submitList 사용 시 제대로 동작하지 않음
+        this.notifyItemInserted(this.itemCount)
     }
 
     override fun addAll(items: List<UserData>) {
-        _items.addAll(items)
-        this.notifyItemRangeInserted(itemCount, items.size)
+        newList.addAll(items)
+        submitList(newList)
     }
 
     override fun remove(position: Int) {
-        _items.removeAt(position)
+        newList.removeAt(position)
+//        submitList(newList) // submitList 사용 시 제대로 동작하지 않음
         this.notifyItemRemoved(position)
     }
 
     override fun clear() {
-        _items.clear()
+        currentList.clear()
     }
 
     override fun isEmpty(): Boolean {
-        return _items.isEmpty()
+        return currentList.isEmpty()
     }
 
     companion object {
