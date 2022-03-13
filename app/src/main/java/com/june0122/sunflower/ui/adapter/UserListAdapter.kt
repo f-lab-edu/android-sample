@@ -2,6 +2,7 @@ package com.june0122.sunflower.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.databinding.ItemProgressBinding
 import com.june0122.sunflower.databinding.ItemUserListBinding
@@ -11,11 +12,12 @@ import com.june0122.sunflower.model.data.UserData
 import com.june0122.sunflower.ui.viewholder.ProgressHolder
 import com.june0122.sunflower.ui.viewholder.UserListViewHolder
 import com.june0122.sunflower.utils.UserClickListener
+import com.june0122.sunflower.utils.UserDiffCallback
 
-class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
-    UserListAdapterEvent {
+class UserListAdapter(private val listener: UserClickListener) :
+    ListAdapter<UserData, RecyclerView.ViewHolder>(UserDiffCallback()), UserListAdapterEvent {
     private val _items = mutableListOf<UserData>()
-//    val items get() = _items
+    val items = _items
 
     override fun getItemViewType(position: Int): Int {
         return when (_items[position]) {
@@ -39,7 +41,7 @@ class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Ad
         }
     }
 
-    override fun getItemCount(): Int = _items.count()
+//    override fun getItemCount(): Int = _items.count()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val data = _items[holder.absoluteAdapterPosition]) {

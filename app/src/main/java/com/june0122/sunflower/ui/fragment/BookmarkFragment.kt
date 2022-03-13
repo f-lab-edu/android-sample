@@ -1,6 +1,7 @@
 package com.june0122.sunflower.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,9 +53,8 @@ class BookmarkFragment : Fragment() {
         val view = binding.root
 
         viewModel.bookmarks.observe(viewLifecycleOwner) {
-            // 북마크 화면에서 아이템을 클릭 후 되돌아올때 이벤트 감지하므로 모두 지우고 추가 (더 나은 방법 고민해보기)
-            bookmarkAdapter.clear()
             bookmarkAdapter.addAll(it)
+            bookmarkAdapter.submitList(it)
         }
 
         return view

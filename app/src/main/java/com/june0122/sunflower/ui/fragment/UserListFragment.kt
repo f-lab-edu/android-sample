@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentUserListBinding
+import com.june0122.sunflower.model.data.User
 import com.june0122.sunflower.ui.adapter.UserListAdapter
 import com.june0122.sunflower.ui.adapter.UserListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.EventObserver
@@ -96,6 +97,10 @@ class UserListFragment : Fragment() {
 
         viewModel.statusMessage.observe(requireActivity()) { event ->
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
+        }
+
+        viewModel.items.observe(requireActivity()) {
+            userListAdapter.submitList(it)
         }
     }
 

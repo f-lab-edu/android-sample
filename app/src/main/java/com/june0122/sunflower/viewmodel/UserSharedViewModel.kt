@@ -23,6 +23,9 @@ import retrofit2.Response
 class UserSharedViewModel(
     private val userListAdapter: UserListAdapter,
 ) : ViewModel(), UserClickListener {
+    private val _items = MutableLiveData<List<UserData>>()
+    val items: LiveData<List<UserData>> = _items
+
     private val _statusMessage = MutableLiveData<Event<String>>()
     val statusMessage: LiveData<Event<String>> = _statusMessage
 
@@ -38,6 +41,10 @@ class UserSharedViewModel(
     private var perPage = 20
     private var lastPage = 0
     private var progressPosition = 0
+
+    init {
+        _items.value = userListAdapter.items
+    }
 
     override fun onUserClick(position: Int) {
         val item = userListAdapter[position]
