@@ -90,8 +90,12 @@ class UserListFragment : Fragment() {
         configureRecyclerView(layoutManager)
         setSpanSize(layoutManager)
 
-        if (userListAdapter.isEmpty()) {
+        if (userListAdapter.itemCount == 0) {
             viewModel.getUserList()
+        }
+
+        viewModel.items.observe(requireActivity()) {
+            userListAdapter.updateUserListItems(it)
         }
 
         viewModel.statusMessage.observe(requireActivity()) { event ->

@@ -14,9 +14,10 @@ import com.june0122.sunflower.ui.viewholder.UserListViewHolder
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.UserDiffCallback
 
-class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
-    UserListAdapterEvent {
+class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val userList = mutableListOf<UserData>()
+
+    operator fun get(position: Int): UserData = userList[position]
 
     override fun getItemViewType(position: Int): Int {
         return when (userList[position]) {
@@ -55,37 +56,6 @@ class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Ad
         userList.clear()
         userList.addAll(items)
         diffResult.dispatchUpdatesTo(this)
-    }
-
-    override fun add(item: UserData) {
-        val newList = mutableListOf<UserData>().apply { addAll(userList) }
-        newList.add(item)
-        updateUserListItems(newList)
-    }
-
-    override fun addAll(items: List<UserData>) {
-        val newList = mutableListOf<UserData>().apply { addAll(userList) }
-        newList.addAll(items)
-        updateUserListItems(newList)
-    }
-
-
-    override fun remove(position: Int) {
-        val newList = mutableListOf<UserData>().apply { addAll(userList) }
-        newList.removeAt(position)
-        updateUserListItems(newList)
-    }
-
-    override fun get(position: Int): UserData {
-        return userList[position]
-    }
-
-    override fun clear() {
-        userList.clear()
-    }
-
-    override fun isEmpty(): Boolean {
-        return userList.isEmpty()
     }
 
     companion object {

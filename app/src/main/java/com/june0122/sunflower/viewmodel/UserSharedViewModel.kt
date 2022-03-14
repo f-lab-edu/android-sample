@@ -23,8 +23,8 @@ import retrofit2.Response
 class UserSharedViewModel(
     private val userListAdapter: UserListAdapter,
 ) : ViewModel(), UserClickListener {
-//    private val _items = MutableLiveData<List<UserData>>()
-//    val items: LiveData<List<UserData>> = _items
+    private val _items = MutableLiveData<List<UserData>>()
+    val items: LiveData<List<UserData>> = _items
 
     private val _statusMessage = MutableLiveData<Event<String>>()
     val statusMessage: LiveData<Event<String>> = _statusMessage
@@ -91,10 +91,15 @@ class UserSharedViewModel(
     private fun updateUserList(users: Users) {
         if (userListAdapter.itemCount != 0) deleteProgress(progressPosition)
         lastPage = (users.total_count / perPage) + 1
+
         val newData = users.items.map {
             User(imageUrl = it.avatarUrl, name = it.login, description = "")
         }
-        userListAdapter.addAll(newData)
+
+       _items.value = (_items.value?.toMutableList() ?: mutableListOf()).apply {
+            addAll(newData)
+        }
+
         isLoading = false
     }
 
@@ -105,11 +110,15 @@ class UserSharedViewModel(
 
     private fun addProgress() {
         progressPosition = userListAdapter.itemCount
-        userListAdapter.add(Progress)
+        _items.value = (_items.value?.toMutableList() ?: mutableListOf()).apply {
+            add(Progress)
+        }
     }
 
     private fun deleteProgress(position: Int) {
-        userListAdapter.remove(position)
+        _items.value = (_items.value?.toMutableList() ?: mutableListOf()).apply {
+            removeAt(position)
+        }
     }
 
     fun setBookmark(fab: FloatingActionButton, data: User) {

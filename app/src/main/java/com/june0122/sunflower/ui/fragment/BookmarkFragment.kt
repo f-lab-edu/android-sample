@@ -1,7 +1,6 @@
 package com.june0122.sunflower.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,8 +16,8 @@ import com.june0122.sunflower.ui.adapter.UserListAdapter
 import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
-import com.june0122.sunflower.viewmodel.UserSharedViewModel
 import com.june0122.sunflower.viewmodel.UserListViewModelFactory
+import com.june0122.sunflower.viewmodel.UserSharedViewModel
 
 class BookmarkFragment : Fragment() {
     private var _binding: FragmentBookmarkBinding? = null
@@ -56,7 +55,6 @@ class BookmarkFragment : Fragment() {
         viewModel.bookmarks.observe(viewLifecycleOwner, EventObserver {
             bookmarkAdapter.updateUserListItems(it)
         })
-
 
         return view
     }
