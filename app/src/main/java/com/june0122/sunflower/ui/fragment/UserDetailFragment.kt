@@ -8,12 +8,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import coil.load
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentUserDetailBinding
 import com.june0122.sunflower.model.data.User
 import com.june0122.sunflower.ui.adapter.UserListAdapter
 import com.june0122.sunflower.utils.UserClickListener
-import com.june0122.sunflower.viewmodel.UserSharedViewModel
 import com.june0122.sunflower.viewmodel.UserListViewModelFactory
+import com.june0122.sunflower.viewmodel.UserSharedViewModel
 
 class UserDetailFragment : Fragment() {
     private var _binding: FragmentUserDetailBinding? = null
@@ -30,6 +33,8 @@ class UserDetailFragment : Fragment() {
             override fun onUserLongClick(position: Int) {
                 viewModel.onUserLongClick(position)
             }
+
+            override fun onBookmarkClick(position: Int) {}
         })
     }
 
@@ -59,15 +64,41 @@ class UserDetailFragment : Fragment() {
         }
         binding.tvPlantName.text = data.name
         binding.tvDescription.text = data.description
-        binding.fabFavorite.setOnClickListener {
-            viewModel.setBookmark(binding.fabFavorite, data)
+
+        val fab = binding.fabFavorite
+        fab.setOnClickListener {
+            if (fab.isSelected) fab.bookmarkEvent(false, "Disable bookmark")
+            else fab.bookmarkEvent(true, "Enable bookmark")
         }
 
-        viewModel.checkBookmark(binding.fabFavorite, data)
+        viewModel.bookmarkStatus.observe(viewLifecycleOwner) { status ->
+            if (status) fab.bookmarkEvent(true, R.drawable.ic_bookmark_filled)
+            else fab.bookmarkEvent(false, R.drawable.ic_bookmark)
+        }
+
+        viewModel.checkBookmark(data)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun FloatingActionButton.bookmarkEvent(status: Boolean, message: String) {
+        this.isSelected = status
+        viewModel.setBookmark(data)
+        Snackbar.make(this, message, Snackbar.LENGTH_LONG).setAction("Action", null).show()
+    }
+
+    private fun FloatingActionButton.bookmarkEvent(status: Boolean, resId: Int) {
+        this.isSelected = status
+        setImageResource(resId)
+    }
+//    private fun updateBookmarkUI(status: Boolean) {
+//        if (status) {
+//            binding.fabFavorite.setImageResource(R.drawable.ic_bookmark_filled)
+//        } else {
+//            binding.fabFavorite.setImageResource(R.drawable.ic_bookmark)
+//        }
+//    }
 }

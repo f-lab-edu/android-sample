@@ -5,9 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import com.june0122.sunflower.R
 import com.june0122.sunflower.model.data.Progress
 import com.june0122.sunflower.model.data.User
 import com.june0122.sunflower.model.data.UserData
@@ -36,6 +33,12 @@ class UserSharedViewModel(
     private val _bookmarks = MutableLiveData<Event<List<UserData>>>()
     val bookmarks: LiveData<Event<List<UserData>>> = _bookmarks
 
+    private val _bookmarkPosition = MutableLiveData<Int>()
+    val bookmarkPosition: LiveData<Int> = _bookmarkPosition
+
+    private val _bookmarkStatus = MutableLiveData<Boolean>()
+    val bookmarkStatus: LiveData<Boolean> = _bookmarkStatus
+
     private var currentPage = 1
     private var perPage = 20
     private var lastPage = 0
@@ -49,6 +52,13 @@ class UserSharedViewModel(
 
     override fun onUserLongClick(position: Int) {
         val item = userListAdapter[position]
+    }
+
+    override fun onBookmarkClick(position: Int) {
+        val item = userListAdapter[position] as User
+
+        setBookmark(item)
+        _bookmarkPosition.value = position
     }
 
     fun loadNextPage(
@@ -96,7 +106,7 @@ class UserSharedViewModel(
             User(imageUrl = it.avatarUrl, name = it.login, description = "")
         }
 
-       _items.value = (_items.value?.toMutableList() ?: mutableListOf()).apply {
+        _items.value = (_items.value?.toMutableList() ?: mutableListOf()).apply {
             addAll(newData)
         }
 
@@ -121,25 +131,22 @@ class UserSharedViewModel(
         }
     }
 
-    fun setBookmark(fab: FloatingActionButton, data: User) {
+    fun setBookmark(data: User) {
         if (data in bookmarkList) {
             _bookmarks.value = Event(bookmarkList.apply { remove(data) })
-            fab.setImageResource(R.drawable.ic_bookmark)
-            Snackbar.make(fab, "Disable bookmark", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show()
+            _bookmarkStatus.value = false
         } else {
             _bookmarks.value = Event(bookmarkList.apply { add(data) })
-            fab.setImageResource(R.drawable.ic_bookmark_filled)
-            Snackbar.make(fab, "Enable bookmark", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show()
+            _bookmarkStatus.value = true
         }
     }
 
-    fun checkBookmark(fab: FloatingActionButton, data: User) {
-        if (data in bookmarkList) {
-            fab.setImageResource(R.drawable.ic_bookmark_filled)
-        }
+    fun checkBookmark(data: User) {
+        _bookmarkStatus.value = data in bookmarkList
+    }
+
+    fun checkBookmark(position: Int, data: User) {
+        _bookmarkStatus.value = data in bookmarkList
+        _bookmarkPosition.value = position
     }
 }
