@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentBookmarkBinding
 import com.june0122.sunflower.model.data.User
@@ -41,6 +44,11 @@ class BookmarkFragment : Fragment() {
             override fun onUserLongClick(position: Int) {
                 val item = bookmarkAdapter[position]
             }
+
+            override fun onBookmarkClick(position: Int) {
+                viewModel.onBookmarkClick(position)
+                viewModel.checkBookmark(position, bookmarkAdapter[position] as User)
+            }
         })
     }
 
@@ -52,9 +60,10 @@ class BookmarkFragment : Fragment() {
         _binding = FragmentBookmarkBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        viewModel.bookmarks.observe(viewLifecycleOwner, EventObserver {
-            bookmarkAdapter.updateUserListItems(it)
-        })
+        // SingleLiveEvent일 경우 북마크 화면으로 2번째 진입 시 북마크가 안보이는 문제 발생함
+        viewModel.bookmarks.observe(viewLifecycleOwner) {
+            bookmarkAdapter.updateUserListItems(it.peekContent())
+        }
 
         return view
     }

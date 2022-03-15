@@ -12,12 +12,24 @@ class UserListViewHolder(binding: ItemUserListBinding, listener: UserClickListen
     RecyclerView.ViewHolder(binding.root) {
     private val plantNameTextView = binding.tvPlantName
     private val availablePlantImageView = binding.imgAvailablePlant
+    private val bookmarkButton = binding.btnBookmark
 
     init {
         itemView.setOnClickListener { listener.onUserClick(absoluteAdapterPosition) }
         itemView.setOnLongClickListener {
             listener.onUserLongClick(absoluteAdapterPosition)
             return@setOnLongClickListener true
+        }
+        bookmarkButton.setOnClickListener {
+            listener.onBookmarkClick(absoluteAdapterPosition)
+            if (bookmarkButton.isSelected) {
+                bookmarkButton.setImageResource(R.drawable.ic_bookmark)
+                bookmarkButton.isSelected = false
+            }
+            else {
+                bookmarkButton.setImageResource(R.drawable.ic_bookmark_filled)
+                bookmarkButton.isSelected = true
+            }
         }
     }
 

@@ -1,9 +1,11 @@
 package com.june0122.sunflower.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -12,6 +14,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentUserListBinding
+import com.june0122.sunflower.model.data.User
 import com.june0122.sunflower.ui.adapter.UserListAdapter
 import com.june0122.sunflower.ui.adapter.UserListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.EventObserver
@@ -33,6 +36,11 @@ class UserListFragment : Fragment() {
 
             override fun onUserLongClick(position: Int) {
                 viewModel.onUserLongClick(position)
+            }
+
+            override fun onBookmarkClick(position: Int) {
+                viewModel.onBookmarkClick(position)
+//                viewModel.checkBookmark(position, userListAdapter[position] as User)
             }
         })
     }
@@ -100,6 +108,19 @@ class UserListFragment : Fragment() {
 
         viewModel.statusMessage.observe(requireActivity()) { event ->
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
+        }
+
+//        viewModel.bookmarks.observe(requireActivity(), EventObserver { bookmarks ->
+//        })
+
+        viewModel.bookmarkStatus.observe(viewLifecycleOwner) { status ->
+            viewModel.bookmarkPosition.observe(viewLifecycleOwner) { position ->
+                val viewHolder = binding.rvPlantList.findViewHolderForAdapterPosition(position)
+                val bookmarkButton = viewHolder?.itemView?.findViewById<ImageView>(R.id.btn_bookmark)
+                bookmarkButton?.isSelected = status.not()
+
+                Log.e("Check", "POS - $position")
+            }
         }
     }
 
