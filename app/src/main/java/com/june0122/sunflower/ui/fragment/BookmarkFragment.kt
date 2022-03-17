@@ -4,19 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentBookmarkBinding
 import com.june0122.sunflower.model.data.User
 import com.june0122.sunflower.ui.adapter.UserListAdapter
-import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
 import com.june0122.sunflower.viewmodel.UserListViewModelFactory
@@ -45,9 +41,12 @@ class BookmarkFragment : Fragment() {
                 val item = bookmarkAdapter[position]
             }
 
+            //
             override fun onBookmarkClick(position: Int) {
-                viewModel.onBookmarkClick(position)
-                viewModel.checkBookmark(position, bookmarkAdapter[position] as User)
+//                viewModel.onBookmarkClick(position) // 북마크 화면의 포지션이 아닌 SharedViewModel의 리스트 포지션이 들어감
+                val user = bookmarkAdapter[position] as User
+                viewModel.setBookmark(user)
+                viewModel.checkBookmark(position, user)
             }
         })
     }
