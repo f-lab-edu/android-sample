@@ -1,4 +1,4 @@
-package com.june0122.sunflower.ui.adapter
+package com.june0122.sunflower.ui.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,11 +6,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.databinding.ItemProgressBinding
 import com.june0122.sunflower.databinding.ItemUserListBinding
-import com.june0122.sunflower.model.data.Progress
-import com.june0122.sunflower.model.data.User
-import com.june0122.sunflower.model.data.UserData
-import com.june0122.sunflower.ui.viewholder.ProgressHolder
-import com.june0122.sunflower.ui.viewholder.UserListViewHolder
+import com.june0122.sunflower.data.entity.Progress
+import com.june0122.sunflower.data.entity.User
+import com.june0122.sunflower.data.entity.UserData
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.UserDiffCallback
 

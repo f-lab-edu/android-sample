@@ -1,4 +1,4 @@
-package com.june0122.sunflower.ui.fragment
+package com.june0122.sunflower.ui.list
 
 import android.os.Bundle
 import android.util.Log
@@ -14,15 +14,11 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentUserListBinding
-import com.june0122.sunflower.model.data.User
-import com.june0122.sunflower.ui.adapter.UserListAdapter
-import com.june0122.sunflower.ui.adapter.UserListAdapter.Companion.VIEW_TYPE_LOADING
+import com.june0122.sunflower.ui.list.UserListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
 import com.june0122.sunflower.utils.toast
-import com.june0122.sunflower.viewmodel.UserListViewModelFactory
-import com.june0122.sunflower.viewmodel.UserSharedViewModel
 
 class UserListFragment : Fragment() {
     private var _binding: FragmentUserListBinding? = null

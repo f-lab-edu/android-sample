@@ -1,4 +1,4 @@
-package com.june0122.sunflower.ui.fragment
+package com.june0122.sunflower.ui.bookmark
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,12 +11,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.FragmentBookmarkBinding
-import com.june0122.sunflower.model.data.User
-import com.june0122.sunflower.ui.adapter.UserListAdapter
+import com.june0122.sunflower.data.entity.User
+import com.june0122.sunflower.ui.list.UserListAdapter
+import com.june0122.sunflower.ui.list.UserListFragment
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
-import com.june0122.sunflower.viewmodel.UserListViewModelFactory
-import com.june0122.sunflower.viewmodel.UserSharedViewModel
+import com.june0122.sunflower.ui.list.UserListViewModelFactory
+import com.june0122.sunflower.ui.list.UserSharedViewModel
 
 class BookmarkFragment : Fragment() {
     private var _binding: FragmentBookmarkBinding? = null

@@ -1,8 +1,8 @@
 package com.june0122.sunflower.utils
 
 import androidx.recyclerview.widget.DiffUtil
-import com.june0122.sunflower.model.data.User
-import com.june0122.sunflower.model.data.UserData
+import com.june0122.sunflower.data.entity.User
+import com.june0122.sunflower.data.entity.UserData
 
 class UserDiffCallback(
     private val oldItems: List<UserData>,

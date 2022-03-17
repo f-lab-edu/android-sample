@@ -1,4 +1,4 @@
-package com.june0122.sunflower.ui.activity
+package com.june0122.sunflower.ui.main
 
 import android.os.Bundle
 import android.view.MenuItem

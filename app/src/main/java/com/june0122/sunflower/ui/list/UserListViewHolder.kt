@@ -1,11 +1,11 @@
-package com.june0122.sunflower.ui.viewholder
+package com.june0122.sunflower.ui.list
 
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Scale
 import com.june0122.sunflower.R
 import com.june0122.sunflower.databinding.ItemUserListBinding
-import com.june0122.sunflower.model.data.User
+import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.utils.UserClickListener
 
 class UserListViewHolder(binding: ItemUserListBinding, listener: UserClickListener) :

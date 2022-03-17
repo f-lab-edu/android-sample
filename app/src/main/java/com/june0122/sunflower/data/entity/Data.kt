@@ -1,4 +1,4 @@
-package com.june0122.sunflower.model.data
+package com.june0122.sunflower.data.entity
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName

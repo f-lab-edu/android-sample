@@ -1,4 +1,4 @@
-package com.june0122.sunflower.ui.fragment
+package com.june0122.sunflower.ui.detail
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,12 +11,12 @@ import coil.load
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.R
+import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.databinding.FragmentUserDetailBinding
-import com.june0122.sunflower.model.data.User
-import com.june0122.sunflower.ui.adapter.UserListAdapter
+import com.june0122.sunflower.ui.list.UserListAdapter
 import com.june0122.sunflower.utils.UserClickListener
-import com.june0122.sunflower.viewmodel.UserListViewModelFactory
-import com.june0122.sunflower.viewmodel.UserSharedViewModel
+import com.june0122.sunflower.ui.list.UserListViewModelFactory
+import com.june0122.sunflower.ui.list.UserSharedViewModel
 
 class UserDetailFragment : Fragment() {
     private var _binding: FragmentUserDetailBinding? = null

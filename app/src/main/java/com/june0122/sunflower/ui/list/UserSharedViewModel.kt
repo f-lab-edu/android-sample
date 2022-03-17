@@ -1,16 +1,15 @@
-package com.june0122.sunflower.viewmodel
+package com.june0122.sunflower.ui.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
-import com.june0122.sunflower.model.data.Progress
-import com.june0122.sunflower.model.data.User
-import com.june0122.sunflower.model.data.UserData
-import com.june0122.sunflower.model.data.Users
-import com.june0122.sunflower.network.RetrofitClientInstance
-import com.june0122.sunflower.ui.adapter.UserListAdapter
+import com.june0122.sunflower.data.entity.Progress
+import com.june0122.sunflower.data.entity.User
+import com.june0122.sunflower.data.entity.UserData
+import com.june0122.sunflower.data.entity.Users
+import com.june0122.sunflower.data.api.RetrofitClientInstance
 import com.june0122.sunflower.utils.Event
 import com.june0122.sunflower.utils.UserClickListener
 import retrofit2.Call
