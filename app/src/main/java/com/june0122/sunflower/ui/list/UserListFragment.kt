@@ -1,11 +1,9 @@
 package com.june0122.sunflower.ui.list
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -13,8 +11,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
+import com.june0122.sunflower.UsersApplication
 import com.june0122.sunflower.databinding.FragmentUserListBinding
 import com.june0122.sunflower.ui.list.UserListAdapter.Companion.VIEW_TYPE_LOADING
+import com.june0122.sunflower.ui.main.UserSharedViewModel
 import com.june0122.sunflower.utils.EventObserver
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
@@ -36,13 +36,17 @@ class UserListFragment : Fragment() {
 
             override fun onBookmarkClick(position: Int) {
                 viewModel.onBookmarkClick(position)
-//                viewModel.checkBookmark(position, userListAdapter[position] as User)
             }
         })
     }
 
     private val viewModel: UserSharedViewModel by activityViewModels(
-        factoryProducer = { UserListViewModelFactory(userListAdapter) }
+        factoryProducer = {
+            UserListViewModelFactory(
+                userListAdapter,
+                (requireActivity().application as UsersApplication).repository
+            )
+        }
     )
 
     private val layoutManager by lazy { GridLayoutManager(context, DEFAULT_SPAN_COUNT) }
@@ -74,6 +78,10 @@ class UserListFragment : Fragment() {
         _binding = FragmentUserListBinding.inflate(inflater, container, false)
         val view = binding.root
 
+        viewModel.bookmarks.observe(requireActivity()) { users ->
+//            users.let { userListAdapter.updateUserListItems(it) }
+        }
+
         viewModel.showDetail.observe(requireActivity(), EventObserver { plantData ->
             val action = UserListFragmentDirections.detailAction(plantData)
             findNavController().navigate(action)
@@ -98,26 +106,19 @@ class UserListFragment : Fragment() {
             viewModel.getUserList()
         }
 
-        viewModel.items.observe(requireActivity()) {
-            userListAdapter.updateUserListItems(it)
+        viewModel.items.observe(requireActivity()) { users ->
+            userListAdapter.updateUserListItems(users)
         }
 
         viewModel.statusMessage.observe(requireActivity()) { event ->
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
         }
 
-//        viewModel.bookmarks.observe(requireActivity(), EventObserver { bookmarks ->
-//        })
-
         viewModel.bookmarkStatus.observe(viewLifecycleOwner) { status ->
-            viewModel.bookmarkPosition.observe(viewLifecycleOwner) { position ->
-                val viewHolder = binding.rvPlantList.findViewHolderForAdapterPosition(position)
-                val bookmarkButton = viewHolder?.itemView?.findViewById<ImageView>(R.id.btn_bookmark)
-                bookmarkButton?.isSelected = status.not()
 
-                Log.e("Check", "POS - $position")
-            }
         }
+
+
     }
 
     override fun onDestroyView() {

@@ -11,12 +11,13 @@ import coil.load
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.R
+import com.june0122.sunflower.UsersApplication
 import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.databinding.FragmentUserDetailBinding
 import com.june0122.sunflower.ui.list.UserListAdapter
-import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.ui.list.UserListViewModelFactory
-import com.june0122.sunflower.ui.list.UserSharedViewModel
+import com.june0122.sunflower.ui.main.UserSharedViewModel
+import com.june0122.sunflower.utils.UserClickListener
 
 class UserDetailFragment : Fragment() {
     private var _binding: FragmentUserDetailBinding? = null
@@ -39,7 +40,12 @@ class UserDetailFragment : Fragment() {
     }
 
     private val viewModel: UserSharedViewModel by activityViewModels(
-        factoryProducer = { UserListViewModelFactory(userListAdapter) }
+        factoryProducer = {
+            UserListViewModelFactory(
+                userListAdapter,
+                (requireActivity().application as UsersApplication).repository
+            )
+        }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,8 +73,13 @@ class UserDetailFragment : Fragment() {
 
         val fab = binding.fabFavorite
         fab.setOnClickListener {
-            if (fab.isSelected) fab.bookmarkEvent(false, "Disable bookmark")
-            else fab.bookmarkEvent(true, "Enable bookmark")
+            if (fab.isSelected) {
+                viewModel.delete(data)
+                fab.bookmarkEvent(false, "Disable bookmark")
+            } else {
+                viewModel.insert(data)
+                fab.bookmarkEvent(true, "Enable bookmark")
+            }
         }
 
         viewModel.bookmarkStatus.observe(viewLifecycleOwner) { status ->
@@ -94,11 +105,4 @@ class UserDetailFragment : Fragment() {
         this.isSelected = status
         setImageResource(resId)
     }
-//    private fun updateBookmarkUI(status: Boolean) {
-//        if (status) {
-//            binding.fabFavorite.setImageResource(R.drawable.ic_bookmark_filled)
-//        } else {
-//            binding.fabFavorite.setImageResource(R.drawable.ic_bookmark)
-//        }
-//    }
 }

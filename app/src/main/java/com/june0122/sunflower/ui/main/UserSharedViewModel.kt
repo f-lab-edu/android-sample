@@ -1,23 +1,25 @@
-package com.june0122.sunflower.ui.list
+package com.june0122.sunflower.ui.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import com.june0122.sunflower.data.entity.Progress
 import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.data.entity.UserData
 import com.june0122.sunflower.data.entity.Users
-import com.june0122.sunflower.data.api.RetrofitClientInstance
+import com.june0122.sunflower.data.repository.UserRepository
+import com.june0122.sunflower.network.RetrofitClientInstance
+import com.june0122.sunflower.ui.list.UserListAdapter
 import com.june0122.sunflower.utils.Event
 import com.june0122.sunflower.utils.UserClickListener
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class UserSharedViewModel(
     private val userListAdapter: UserListAdapter,
+    private val repository: UserRepository
 ) : ViewModel(), UserClickListener {
     private val _items = MutableLiveData<List<UserData>>()
     val items: LiveData<List<UserData>> = _items
@@ -28,9 +30,7 @@ class UserSharedViewModel(
     private val _showDetail = MutableLiveData<Event<User>>()
     val showDetail: LiveData<Event<User>> = _showDetail
 
-    private val bookmarkList = mutableListOf<User>()
-    private val _bookmarks = MutableLiveData<Event<List<UserData>>>()
-    val bookmarks: LiveData<Event<List<UserData>>> = _bookmarks
+    val bookmarks: LiveData<List<User>> = repository.allUsers.asLiveData()
 
     private val _bookmarkPosition = MutableLiveData<Int>()
     val bookmarkPosition: LiveData<Int> = _bookmarkPosition
@@ -130,22 +130,34 @@ class UserSharedViewModel(
         }
     }
 
+    // repository의 insert() 메서드를 호출하는 래퍼 insert() 메서드 -> insert() 구현이 UI에서 캡슐화
+    fun insert(user: User) = viewModelScope.launch {
+        repository.insert(user)
+    }
+
+    fun delete(user: User) = viewModelScope.launch {
+        repository.delete(user)
+    }
+
     fun setBookmark(data: User) {
-        if (data in bookmarkList) {
-            _bookmarks.value = Event(bookmarkList.apply { remove(data) })
+        val list = bookmarks.value ?: mutableListOf()
+
+        if (data in list) {
+            this.delete(data)
             _bookmarkStatus.value = false
         } else {
-            _bookmarks.value = Event(bookmarkList.apply { add(data) })
+            this.insert(data)
             _bookmarkStatus.value = true
         }
     }
 
     fun checkBookmark(data: User) {
-        _bookmarkStatus.value = data in bookmarkList
+        val list = bookmarks.value ?: mutableListOf()
+        _bookmarkStatus.value = data in list
     }
-
-    fun checkBookmark(position: Int, data: User) {
-        _bookmarkStatus.value = data in bookmarkList
-        _bookmarkPosition.value = position
-    }
+//
+//    fun checkBookmark(position: Int, data: User) {
+//        _bookmarkStatus.value = data in bookmarkList
+//        _bookmarkPosition.value = position
+//    }
 }

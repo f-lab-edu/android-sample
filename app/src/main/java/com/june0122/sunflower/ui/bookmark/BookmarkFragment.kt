@@ -10,21 +10,27 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
-import com.june0122.sunflower.databinding.FragmentBookmarkBinding
+import com.june0122.sunflower.UsersApplication
 import com.june0122.sunflower.data.entity.User
+import com.june0122.sunflower.databinding.FragmentBookmarkBinding
 import com.june0122.sunflower.ui.list.UserListAdapter
 import com.june0122.sunflower.ui.list.UserListFragment
+import com.june0122.sunflower.ui.list.UserListViewModelFactory
+import com.june0122.sunflower.ui.main.UserSharedViewModel
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
-import com.june0122.sunflower.ui.list.UserListViewModelFactory
-import com.june0122.sunflower.ui.list.UserSharedViewModel
 
 class BookmarkFragment : Fragment() {
     private var _binding: FragmentBookmarkBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: UserSharedViewModel by activityViewModels(
-        factoryProducer = { UserListViewModelFactory(bookmarkAdapter) }
+        factoryProducer = {
+            UserListViewModelFactory(
+                bookmarkAdapter,
+                (requireActivity().application as UsersApplication).repository
+            )
+        }
     )
 
     private val bookmarkAdapter: UserListAdapter by lazy {
@@ -42,12 +48,9 @@ class BookmarkFragment : Fragment() {
                 val item = bookmarkAdapter[position]
             }
 
-            //
             override fun onBookmarkClick(position: Int) {
-//                viewModel.onBookmarkClick(position) // 북마크 화면의 포지션이 아닌 SharedViewModel의 리스트 포지션이 들어감
                 val user = bookmarkAdapter[position] as User
-                viewModel.setBookmark(user)
-                viewModel.checkBookmark(position, user)
+                viewModel.insert(user)
             }
         })
     }
@@ -60,9 +63,8 @@ class BookmarkFragment : Fragment() {
         _binding = FragmentBookmarkBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        // SingleLiveEvent일 경우 북마크 화면으로 2번째 진입 시 북마크가 안보이는 문제 발생함
-        viewModel.bookmarks.observe(viewLifecycleOwner) {
-            bookmarkAdapter.updateUserListItems(it.peekContent())
+        viewModel.bookmarks.observe(requireActivity()) { users ->
+            users.let { bookmarkAdapter.updateUserListItems(it) }
         }
 
         return view
