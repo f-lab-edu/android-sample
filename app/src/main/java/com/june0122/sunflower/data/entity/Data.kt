@@ -1,6 +1,9 @@
 package com.june0122.sunflower.data.entity
 
 import android.os.Parcelable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -9,10 +12,11 @@ sealed class UserData
 object Progress : UserData()
 
 @Parcelize
+@Entity(tableName = "user_table")
 data class User(
-    val imageUrl: String,
-    val name: String,
-    val description: String,
+    @PrimaryKey val name: String,
+    @ColumnInfo val imageUrl: String,
+    @ColumnInfo val description: String,
 ) : Parcelable, UserData()
 
 data class Users(
