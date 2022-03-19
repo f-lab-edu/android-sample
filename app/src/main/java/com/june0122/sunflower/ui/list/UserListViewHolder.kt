@@ -4,8 +4,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Scale
 import com.june0122.sunflower.R
-import com.june0122.sunflower.databinding.ItemUserListBinding
 import com.june0122.sunflower.data.entity.User
+import com.june0122.sunflower.databinding.ItemUserListBinding
 import com.june0122.sunflower.utils.UserClickListener
 
 class UserListViewHolder(binding: ItemUserListBinding, listener: UserClickListener) :
@@ -41,5 +41,13 @@ class UserListViewHolder(binding: ItemUserListBinding, listener: UserClickListen
             crossfade(300)
         }
         plantNameTextView.text = user.name
+
+//        if (user.isBookmark) {
+//            bookmarkButton.setImageResource(R.drawable.ic_bookmark_filled)
+//            bookmarkButton.isSelected = true
+//        } else {
+//            bookmarkButton.setImageResource(R.drawable.ic_bookmark)
+//            bookmarkButton.isSelected = false
+//        }
     }
 }

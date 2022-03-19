@@ -1,5 +1,6 @@
 package com.june0122.sunflower.ui.main
 
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -32,11 +33,8 @@ class UserSharedViewModel(
 
     val bookmarks: LiveData<List<User>> = repository.allUsers.asLiveData()
 
-    private val _bookmarkPosition = MutableLiveData<Int>()
-    val bookmarkPosition: LiveData<Int> = _bookmarkPosition
-
-    private val _bookmarkStatus = MutableLiveData<Boolean>()
-    val bookmarkStatus: LiveData<Boolean> = _bookmarkStatus
+//    private val _bookmarkStatus = MutableLiveData<Boolean>()
+//    val bookmarkStatus: LiveData<Boolean> = _bookmarkStatus
 
     private var currentPage = 1
     private var perPage = 20
@@ -45,8 +43,8 @@ class UserSharedViewModel(
     private var isLoading = false
 
     override fun onUserClick(position: Int) {
-        val item = userListAdapter[position]
-        _showDetail.value = Event(item as User)
+        val item = userListAdapter[position] as User
+        _showDetail.value = Event(item)
     }
 
     override fun onUserLongClick(position: Int) {
@@ -55,10 +53,10 @@ class UserSharedViewModel(
 
     override fun onBookmarkClick(position: Int) {
         val item = userListAdapter[position] as User
-
         setBookmark(item)
-        _bookmarkPosition.value = position
+        Log.d("Check", "ViewModel items: ${_items.value}")
     }
+
 
     fun loadNextPage(
         canScrollVertically: Boolean,
@@ -102,7 +100,7 @@ class UserSharedViewModel(
         lastPage = (users.total_count / perPage) + 1
 
         val newData = users.items.map {
-            User(imageUrl = it.avatarUrl, name = it.login, description = "")
+            User(name = it.login, imageUrl = it.avatarUrl, description = "", isBookmark = false)
         }
 
         _items.value = (_items.value?.toMutableList() ?: mutableListOf()).apply {
@@ -140,24 +138,29 @@ class UserSharedViewModel(
     }
 
     fun setBookmark(data: User) {
-        val list = bookmarks.value ?: mutableListOf()
+        val bookmarks = bookmarks.value ?: mutableListOf()
 
-        if (data in list) {
-            this.delete(data)
-            _bookmarkStatus.value = false
+        if (data in bookmarks) {
+            delete(data)
         } else {
-            this.insert(data)
-            _bookmarkStatus.value = true
+            insert(data)
         }
     }
 
-    fun checkBookmark(data: User) {
-        val list = bookmarks.value ?: mutableListOf()
-        _bookmarkStatus.value = data in list
-    }
-//
-//    fun checkBookmark(position: Int, data: User) {
-//        _bookmarkStatus.value = data in bookmarkList
-//        _bookmarkPosition.value = position
+//    fun checkBookmark(data: User) {
+//        val list = bookmarks.value ?: mutableListOf()
+//        _bookmarkStatus.value = data in list
 //    }
+//
+//    fun checkBookmark() {
+//        if (_items.value != null) {
+//            val bookmarks = bookmarks.value ?: mutableListOf()
+//            _items.value = _items.value?.map {
+//                val user = it as User
+//                if (bookmarks.contains(user)) user.copy(isBookmark = true)
+//                else user.copy(isBookmark = false)
+//            }
+//        }
+//    }
+
 }

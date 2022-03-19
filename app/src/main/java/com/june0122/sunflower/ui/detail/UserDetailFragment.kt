@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import coil.load
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.R
 import com.june0122.sunflower.UsersApplication
@@ -24,6 +23,7 @@ class UserDetailFragment : Fragment() {
     private val binding get() = _binding!!
     private var bookmarkStatus = false
     private lateinit var data: User
+    private lateinit var snackBarMessage: String
 
     private val userListAdapter: UserListAdapter by lazy {
         UserListAdapter(object : UserClickListener {
@@ -73,36 +73,23 @@ class UserDetailFragment : Fragment() {
 
         val fab = binding.fabFavorite
         fab.setOnClickListener {
-            if (fab.isSelected) {
-                viewModel.delete(data)
-                fab.bookmarkEvent(false, "Disable bookmark")
+            viewModel.setBookmark(data)
+            Snackbar.make(fab, snackBarMessage, Snackbar.LENGTH_LONG).setAction("Action", null).show()
+        }
+
+        viewModel.bookmarks.observe(requireActivity()) { bookmarks ->
+            snackBarMessage = if (data in bookmarks) {
+                fab.setImageResource(R.drawable.ic_bookmark_filled)
+                "Disable Bookmark"
             } else {
-                viewModel.insert(data)
-                fab.bookmarkEvent(true, "Enable bookmark")
+                fab.setImageResource(R.drawable.ic_bookmark)
+                "Enable Bookmark"
             }
         }
-
-        viewModel.bookmarkStatus.observe(viewLifecycleOwner) { status ->
-            if (status) fab.bookmarkEvent(true, R.drawable.ic_bookmark_filled)
-            else fab.bookmarkEvent(false, R.drawable.ic_bookmark)
-        }
-
-        viewModel.checkBookmark(data)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun FloatingActionButton.bookmarkEvent(status: Boolean, message: String) {
-        this.isSelected = status
-        viewModel.setBookmark(data)
-        Snackbar.make(this, message, Snackbar.LENGTH_LONG).setAction("Action", null).show()
-    }
-
-    private fun FloatingActionButton.bookmarkEvent(status: Boolean, resId: Int) {
-        this.isSelected = status
-        setImageResource(resId)
     }
 }

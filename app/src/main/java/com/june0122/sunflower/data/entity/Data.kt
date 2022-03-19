@@ -17,6 +17,7 @@ data class User(
     @PrimaryKey val name: String,
     @ColumnInfo val imageUrl: String,
     @ColumnInfo val description: String,
+    @ColumnInfo val isBookmark: Boolean,
 ) : Parcelable, UserData()
 
 data class Users(

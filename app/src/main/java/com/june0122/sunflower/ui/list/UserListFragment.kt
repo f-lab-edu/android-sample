@@ -1,9 +1,11 @@
 package com.june0122.sunflower.ui.list
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -12,6 +14,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
 import com.june0122.sunflower.UsersApplication
+import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.databinding.FragmentUserListBinding
 import com.june0122.sunflower.ui.list.UserListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.ui.main.UserSharedViewModel
@@ -75,25 +78,9 @@ class UserListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         setHasOptionsMenu(true)
-        _binding = FragmentUserListBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        viewModel.bookmarks.observe(requireActivity()) { users ->
-//            users.let { userListAdapter.updateUserListItems(it) }
-        }
-
-        viewModel.showDetail.observe(requireActivity(), EventObserver { plantData ->
-            val action = UserListFragmentDirections.detailAction(plantData)
-            findNavController().navigate(action)
-        })
-
-//        // 롱클릭 이벤트 재작성 필요
-//        viewModel.showDetail.observe(viewLifecycleOwner) { plantData ->
-//            PlantDialogFragment.newInstance(plantData).apply {
-//                show(this@PlantListFragment.parentFragmentManager, DIALOG_PLANT)
-//            }
-//        }
-        return view
+        return FragmentUserListBinding.inflate(inflater, container, false).also {
+            _binding = it
+        }.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -107,6 +94,18 @@ class UserListFragment : Fragment() {
         }
 
         viewModel.items.observe(requireActivity()) { users ->
+            users.forEachIndexed { position, user ->
+                val holder = recyclerView.findViewHolderForAdapterPosition(position)
+                val bookmarkButton = holder?.itemView?.findViewById<ImageView>(R.id.btn_bookmark)
+
+                if (user is User && user.isBookmark) {
+                    Log.d("Check", "${user.name} true")
+                    Log.d("Check", "--------")
+                    bookmarkButton?.setImageResource(R.drawable.ic_bookmark_filled)
+                } else {
+                    bookmarkButton?.setImageResource(R.drawable.ic_bookmark)
+                }
+            }
             userListAdapter.updateUserListItems(users)
         }
 
@@ -114,10 +113,10 @@ class UserListFragment : Fragment() {
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
         }
 
-        viewModel.bookmarkStatus.observe(viewLifecycleOwner) { status ->
-
-        }
-
+        viewModel.showDetail.observe(requireActivity(), EventObserver { userData ->
+            val action = UserListFragmentDirections.detailAction(userData)
+            findNavController().navigate(action)
+        })
 
     }
 
