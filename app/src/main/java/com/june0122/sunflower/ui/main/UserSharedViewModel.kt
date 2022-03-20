@@ -4,24 +4,32 @@ import android.util.Log
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
+import com.june0122.sunflower.data.api.GithubService
 import com.june0122.sunflower.data.entity.Progress
 import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.data.entity.UserData
 import com.june0122.sunflower.data.entity.Users
 import com.june0122.sunflower.data.repository.UserRepository
+import com.june0122.sunflower.data.room.UserDao
 import com.june0122.sunflower.network.RetrofitClientInstance
 import com.june0122.sunflower.ui.list.UserListAdapter
 import com.june0122.sunflower.utils.Event
 import com.june0122.sunflower.utils.UserClickListener
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class UserSharedViewModel(
+@HiltViewModel
+class UserSharedViewModel @Inject constructor(
     private val userListAdapter: UserListAdapter,
     private val repository: UserRepository
 ) : ViewModel(), UserClickListener {
+
+    @Inject lateinit var githubService: GithubService
+
     private val _items = MutableLiveData<List<UserData>>()
     val items: LiveData<List<UserData>> = _items
 

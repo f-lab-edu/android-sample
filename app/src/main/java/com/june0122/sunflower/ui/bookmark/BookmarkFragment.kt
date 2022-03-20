@@ -7,55 +7,26 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
-import com.june0122.sunflower.UsersApplication
-import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.databinding.FragmentBookmarkBinding
 import com.june0122.sunflower.ui.list.UserListAdapter
 import com.june0122.sunflower.ui.list.UserListFragment
-import com.june0122.sunflower.ui.list.UserListViewModelFactory
 import com.june0122.sunflower.ui.main.UserSharedViewModel
-import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class BookmarkFragment : Fragment() {
     private var _binding: FragmentBookmarkBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: UserSharedViewModel by activityViewModels(
-        factoryProducer = {
-            UserListViewModelFactory(
-                bookmarkAdapter,
-                (requireActivity().application as UsersApplication).repository
-            )
-        }
-    )
+    private val viewModel: UserSharedViewModel by activityViewModels()
 
-    private val bookmarkAdapter: UserListAdapter by lazy {
-        UserListAdapter(object : UserClickListener {
-            override fun onUserClick(position: Int) {
-                val item = bookmarkAdapter[position]
-                val action = BookmarkFragmentDirections.detailAction(
-                    userData = item as User,
-                    bookmarkStatus = true
-                )
-                findNavController().navigate(action)
-            }
-
-            override fun onUserLongClick(position: Int) {
-                val item = bookmarkAdapter[position]
-            }
-
-            override fun onBookmarkClick(position: Int) {
-                val user = bookmarkAdapter[position] as User
-                viewModel.delete(user)
-//                viewModel.setBookmark(user)
-            }
-        })
-    }
+    @Inject
+    lateinit var bookmarkAdapter: UserListAdapter
 
     private val layoutManager by lazy { GridLayoutManager(context, UserListFragment.DEFAULT_SPAN_COUNT) }
 

@@ -11,8 +11,10 @@ import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.data.entity.UserData
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.UserDiffCallback
+import javax.inject.Inject
 
-class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class UserListAdapter @Inject constructor(private val listener: UserClickListener) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val userList = mutableListOf<UserData>()
 
     operator fun get(position: Int): UserData = userList[position]

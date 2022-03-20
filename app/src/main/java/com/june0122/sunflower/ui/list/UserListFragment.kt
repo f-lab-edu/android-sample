@@ -13,44 +13,24 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
-import com.june0122.sunflower.UsersApplication
 import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.databinding.FragmentUserListBinding
 import com.june0122.sunflower.ui.list.UserListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.ui.main.UserSharedViewModel
 import com.june0122.sunflower.utils.EventObserver
-import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
 import com.june0122.sunflower.utils.toast
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class UserListFragment : Fragment() {
     private var _binding: FragmentUserListBinding? = null
     private val binding get() = _binding!!
 
-    private val userListAdapter: UserListAdapter by lazy {
-        UserListAdapter(object : UserClickListener {
-            override fun onUserClick(position: Int) {
-                viewModel.onUserClick(position)
-            }
+    @Inject lateinit var userListAdapter: UserListAdapter
 
-            override fun onUserLongClick(position: Int) {
-                viewModel.onUserLongClick(position)
-            }
-
-            override fun onBookmarkClick(position: Int) {
-                viewModel.onBookmarkClick(position)
-            }
-        })
-    }
-
-    private val viewModel: UserSharedViewModel by activityViewModels(
-        factoryProducer = {
-            UserListViewModelFactory(
-                userListAdapter,
-                (requireActivity().application as UsersApplication).repository
-            )
-        }
-    )
+    private val viewModel: UserSharedViewModel by activityViewModels()
 
     private val layoutManager by lazy { GridLayoutManager(context, DEFAULT_SPAN_COUNT) }
 

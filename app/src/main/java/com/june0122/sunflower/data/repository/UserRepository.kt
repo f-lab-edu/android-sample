@@ -4,8 +4,9 @@ import androidx.annotation.WorkerThread
 import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.data.room.UserDao
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class UserRepository(private val userDao: UserDao) {
+class UserRepository @Inject constructor(private val userDao: UserDao) {
     val allUsers: Flow<List<User>> = userDao.getUsers()
 
     @WorkerThread
