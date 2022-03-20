@@ -1,7 +1,7 @@
-package com.june0122.sunflower.service
+package com.june0122.sunflower.data.api
 
-import com.june0122.sunflower.model.data.UserInfoDetail
-import com.june0122.sunflower.model.data.Users
+import com.june0122.sunflower.data.entity.UserInfoDetail
+import com.june0122.sunflower.data.entity.Users
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

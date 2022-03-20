@@ -1,4 +1,4 @@
-package com.june0122.sunflower.ui.fragment
+package com.june0122.sunflower.ui.dialog
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.june0122.sunflower.R
-import com.june0122.sunflower.model.data.User
+import com.june0122.sunflower.data.entity.User
 
 class UserDialogFragment : DialogFragment() {
 

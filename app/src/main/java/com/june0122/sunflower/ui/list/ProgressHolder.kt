@@ -1,4 +1,4 @@
-package com.june0122.sunflower.ui.viewholder
+package com.june0122.sunflower.ui.list
 
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.databinding.ItemProgressBinding

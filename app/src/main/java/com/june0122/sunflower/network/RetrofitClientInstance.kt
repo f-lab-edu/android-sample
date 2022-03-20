@@ -1,6 +1,6 @@
 package com.june0122.sunflower.network
 
-import com.june0122.sunflower.service.GithubService
+import com.june0122.sunflower.data.api.GithubService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

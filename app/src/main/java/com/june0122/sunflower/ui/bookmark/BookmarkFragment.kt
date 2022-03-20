@@ -1,29 +1,37 @@
-package com.june0122.sunflower.ui.fragment
+package com.june0122.sunflower.ui.bookmark
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
+import com.june0122.sunflower.UsersApplication
+import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.databinding.FragmentBookmarkBinding
-import com.june0122.sunflower.model.data.User
-import com.june0122.sunflower.ui.adapter.UserListAdapter
+import com.june0122.sunflower.ui.list.UserListAdapter
+import com.june0122.sunflower.ui.list.UserListFragment
+import com.june0122.sunflower.ui.list.UserListViewModelFactory
+import com.june0122.sunflower.ui.main.UserSharedViewModel
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
-import com.june0122.sunflower.viewmodel.UserSharedViewModel
-import com.june0122.sunflower.viewmodel.UserListViewModelFactory
 
 class BookmarkFragment : Fragment() {
     private var _binding: FragmentBookmarkBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: UserSharedViewModel by activityViewModels(
-        factoryProducer = { UserListViewModelFactory(bookmarkAdapter) }
+        factoryProducer = {
+            UserListViewModelFactory(
+                bookmarkAdapter,
+                (requireActivity().application as UsersApplication).repository
+            )
+        }
     )
 
     private val bookmarkAdapter: UserListAdapter by lazy {
@@ -40,6 +48,12 @@ class BookmarkFragment : Fragment() {
             override fun onUserLongClick(position: Int) {
                 val item = bookmarkAdapter[position]
             }
+
+            override fun onBookmarkClick(position: Int) {
+                val user = bookmarkAdapter[position] as User
+                viewModel.delete(user)
+//                viewModel.setBookmark(user)
+            }
         })
     }
 
@@ -48,22 +62,24 @@ class BookmarkFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentBookmarkBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        viewModel.bookmarks.observe(viewLifecycleOwner) {
-            // 북마크 화면에서 아이템을 클릭 후 되돌아올때 이벤트 감지하므로 모두 지우고 추가 (더 나은 방법 고민해보기)
-            bookmarkAdapter.clear()
-            bookmarkAdapter.addAll(it)
-        }
-
-        return view
+        return FragmentBookmarkBinding.inflate(inflater, container, false).also {
+            _binding = it
+        }.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         configureRecyclerView(layoutManager)
+
+        viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
+            bookmarks.forEachIndexed { position, user ->
+                val holder = recyclerView.findViewHolderForAdapterPosition(position)
+                val bookmarkButton = holder?.itemView?.findViewById<ImageView>(R.id.btn_bookmark)
+                bookmarkButton?.setImageResource(R.drawable.ic_bookmark_filled)
+            }
+            bookmarkAdapter.updateUserListItems(bookmarks)
+        }
     }
 
     override fun onDestroyView() {
