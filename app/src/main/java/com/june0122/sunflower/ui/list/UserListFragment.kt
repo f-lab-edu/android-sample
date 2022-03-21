@@ -18,22 +18,33 @@ import com.june0122.sunflower.databinding.FragmentUserListBinding
 import com.june0122.sunflower.ui.list.UserListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.ui.main.UserSharedViewModel
 import com.june0122.sunflower.utils.EventObserver
+import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.decoration.UserListItemDecoration
 import com.june0122.sunflower.utils.toast
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class UserListFragment : Fragment() {
     private var _binding: FragmentUserListBinding? = null
     private val binding get() = _binding!!
-
-    @Inject lateinit var userListAdapter: UserListAdapter
-
+    private val userListAdapter: UserListAdapter = UserListAdapter()
     private val viewModel: UserSharedViewModel by activityViewModels()
-
     private val layoutManager by lazy { GridLayoutManager(context, DEFAULT_SPAN_COUNT) }
+    private val clickListener by lazy {
+        object : UserClickListener {
+            override fun onUserClick(position: Int) {
+                viewModel.onUserClick(position)
+            }
 
+            override fun onUserLongClick(position: Int) {
+                viewModel.onUserLongClick(position)
+            }
+
+            override fun onBookmarkClick(position: Int) {
+                viewModel.onBookmarkClick(position)
+            }
+        }
+    }
     private val scrollListener by lazy {
         object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -68,6 +79,7 @@ class UserListFragment : Fragment() {
 
         configureRecyclerView(layoutManager)
         setSpanSize(layoutManager)
+        viewModel.adapter = userListAdapter
 
         if (userListAdapter.itemCount == 0) {
             viewModel.getUserList()
@@ -124,6 +136,7 @@ class UserListFragment : Fragment() {
         recyclerView = binding.rvPlantList.apply {
             this.layoutManager = layoutManager
             adapter = userListAdapter
+            userListAdapter.listener = clickListener
             itemAnimator = null
             addItemDecoration(UserListItemDecoration(DEFAULT_SPAN_COUNT, px, true))
             addOnScrollListener(scrollListener)
