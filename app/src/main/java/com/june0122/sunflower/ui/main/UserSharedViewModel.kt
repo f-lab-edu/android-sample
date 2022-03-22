@@ -1,27 +1,30 @@
 package com.june0122.sunflower.ui.main
 
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
+import com.june0122.sunflower.data.api.GithubService
 import com.june0122.sunflower.data.entity.Progress
 import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.data.entity.UserData
 import com.june0122.sunflower.data.entity.Users
 import com.june0122.sunflower.data.repository.UserRepository
-import com.june0122.sunflower.network.RetrofitClientInstance
 import com.june0122.sunflower.ui.list.UserListAdapter
 import com.june0122.sunflower.utils.Event
 import com.june0122.sunflower.utils.UserClickListener
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class UserSharedViewModel(
-    private val userListAdapter: UserListAdapter,
-    private val repository: UserRepository
-) : ViewModel(), UserClickListener {
+@HiltViewModel
+class UserSharedViewModel @Inject constructor(private val repository: UserRepository) : ViewModel(), UserClickListener {
+
+    @Inject lateinit var githubService: GithubService
+    @Inject lateinit var adapter: UserListAdapter
+
     private val _items = MutableLiveData<List<UserData>>()
     val items: LiveData<List<UserData>> = _items
 
@@ -33,9 +36,6 @@ class UserSharedViewModel(
 
     val bookmarks: LiveData<List<User>> = repository.allUsers.asLiveData()
 
-//    private val _bookmarkStatus = MutableLiveData<Boolean>()
-//    val bookmarkStatus: LiveData<Boolean> = _bookmarkStatus
-
     private var currentPage = 1
     private var perPage = 20
     private var lastPage = 0
@@ -43,20 +43,18 @@ class UserSharedViewModel(
     private var isLoading = false
 
     override fun onUserClick(position: Int) {
-        val item = userListAdapter[position] as User
+        val item = adapter[position] as User
         _showDetail.value = Event(item)
     }
 
     override fun onUserLongClick(position: Int) {
-        val item = userListAdapter[position]
+        val item = adapter[position]
     }
 
     override fun onBookmarkClick(position: Int) {
-        val item = userListAdapter[position] as User
+        val item = adapter[position] as User
         setBookmark(item)
-        Log.d("Check", "ViewModel items: ${_items.value}")
     }
-
 
     fun loadNextPage(
         canScrollVertically: Boolean,
@@ -64,7 +62,7 @@ class UserSharedViewModel(
         smoothScroller: LinearSmoothScroller,
         layoutManager: GridLayoutManager
     ) {
-        if (canScrollVertically && lastVisibleItemPosition == userListAdapter.itemCount - 1 && isLoading.not()) {
+        if (canScrollVertically && lastVisibleItemPosition == adapter.itemCount - 1 && isLoading.not()) {
             if (currentPage < lastPage) {
                 addProgress()
                 scrollToProgress(smoothScroller, layoutManager)
@@ -78,7 +76,7 @@ class UserSharedViewModel(
         isLoading = true
 
         val userListCall: Call<Users> =
-            RetrofitClientInstance().githubService.getUserList(query = "june", perPage, currentPage)
+            githubService.getUserList(query = "june", perPage, currentPage)
 
         userListCall.enqueue(object : Callback<Users> {
             override fun onResponse(call: Call<Users>, response: Response<Users>) {
@@ -96,7 +94,7 @@ class UserSharedViewModel(
     }
 
     private fun updateUserList(users: Users) {
-        if (userListAdapter.itemCount != 0) deleteProgress(progressPosition)
+        if (adapter.itemCount != 0) deleteProgress(progressPosition)
         lastPage = (users.total_count / perPage) + 1
 
         val newData = users.items.map {
@@ -111,12 +109,12 @@ class UserSharedViewModel(
     }
 
     private fun scrollToProgress(smoothScroller: LinearSmoothScroller, layoutManager: GridLayoutManager) {
-        smoothScroller.targetPosition = userListAdapter.itemCount
+        smoothScroller.targetPosition = adapter.itemCount
         layoutManager.startSmoothScroll(smoothScroller)
     }
 
     private fun addProgress() {
-        progressPosition = userListAdapter.itemCount
+        progressPosition = adapter.itemCount
         _items.value = (_items.value?.toMutableList() ?: mutableListOf()).apply {
             add(Progress)
         }
@@ -146,21 +144,4 @@ class UserSharedViewModel(
             insert(data)
         }
     }
-
-//    fun checkBookmark(data: User) {
-//        val list = bookmarks.value ?: mutableListOf()
-//        _bookmarkStatus.value = data in list
-//    }
-//
-//    fun checkBookmark() {
-//        if (_items.value != null) {
-//            val bookmarks = bookmarks.value ?: mutableListOf()
-//            _items.value = _items.value?.map {
-//                val user = it as User
-//                if (bookmarks.contains(user)) user.copy(isBookmark = true)
-//                else user.copy(isBookmark = false)
-//            }
-//        }
-//    }
-
 }

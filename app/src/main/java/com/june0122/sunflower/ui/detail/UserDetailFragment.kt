@@ -10,14 +10,12 @@ import androidx.navigation.fragment.navArgs
 import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.june0122.sunflower.R
-import com.june0122.sunflower.UsersApplication
 import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.databinding.FragmentUserDetailBinding
-import com.june0122.sunflower.ui.list.UserListAdapter
-import com.june0122.sunflower.ui.list.UserListViewModelFactory
 import com.june0122.sunflower.ui.main.UserSharedViewModel
-import com.june0122.sunflower.utils.UserClickListener
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class UserDetailFragment : Fragment() {
     private var _binding: FragmentUserDetailBinding? = null
     private val binding get() = _binding!!
@@ -25,28 +23,7 @@ class UserDetailFragment : Fragment() {
     private lateinit var data: User
     private lateinit var snackBarMessage: String
 
-    private val userListAdapter: UserListAdapter by lazy {
-        UserListAdapter(object : UserClickListener {
-            override fun onUserClick(position: Int) {
-                viewModel.onUserClick(position)
-            }
-
-            override fun onUserLongClick(position: Int) {
-                viewModel.onUserLongClick(position)
-            }
-
-            override fun onBookmarkClick(position: Int) {}
-        })
-    }
-
-    private val viewModel: UserSharedViewModel by activityViewModels(
-        factoryProducer = {
-            UserListViewModelFactory(
-                userListAdapter,
-                (requireActivity().application as UsersApplication).repository
-            )
-        }
-    )
+    private val viewModel: UserSharedViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

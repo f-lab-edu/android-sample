@@ -4,16 +4,17 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.june0122.sunflower.databinding.ItemProgressBinding
-import com.june0122.sunflower.databinding.ItemUserListBinding
 import com.june0122.sunflower.data.entity.Progress
 import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.data.entity.UserData
+import com.june0122.sunflower.databinding.ItemProgressBinding
+import com.june0122.sunflower.databinding.ItemUserListBinding
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.UserDiffCallback
 
-class UserListAdapter(private val listener: UserClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class UserListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val userList = mutableListOf<UserData>()
+    lateinit var listener: UserClickListener
 
     operator fun get(position: Int): UserData = userList[position]
 
