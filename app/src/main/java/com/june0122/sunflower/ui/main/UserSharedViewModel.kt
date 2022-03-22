@@ -23,7 +23,7 @@ import javax.inject.Inject
 class UserSharedViewModel @Inject constructor(private val repository: UserRepository) : ViewModel(), UserClickListener {
 
     @Inject lateinit var githubService: GithubService
-    lateinit var adapter: UserListAdapter
+    @Inject lateinit var adapter: UserListAdapter
 
     private val _items = MutableLiveData<List<UserData>>()
     val items: LiveData<List<UserData>> = _items
