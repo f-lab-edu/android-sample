@@ -13,6 +13,8 @@ import com.june0122.sunflower.ui.list.UserListAdapter
 import com.june0122.sunflower.utils.Event
 import com.june0122.sunflower.utils.UserClickListener
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -129,10 +131,12 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
     // repository의 insert() 메서드를 호출하는 래퍼 insert() 메서드 -> insert() 구현이 UI에서 캡슐화
     fun insert(user: User) = viewModelScope.launch {
         repository.insert(user)
+        repository.allUsers.onEach { checkBookmarks(it) }.launchIn(viewModelScope)
     }
 
     fun delete(user: User) = viewModelScope.launch {
         repository.delete(user)
+        repository.allUsers.onEach { checkBookmarks(it) }.launchIn(viewModelScope)
     }
 
     fun setBookmark(data: User) {
@@ -142,6 +146,23 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
             delete(data)
         } else {
             insert(data)
+        }
+    }
+
+    fun checkBookmarks() {
+        val bookmarks = bookmarks.value ?: mutableListOf()
+        _items.value = _items.value?.map {
+            val user = it as User
+            if (bookmarks.contains(user)) user.copy(isBookmark = true)
+            else user.copy(isBookmark = false)
+        }
+    }
+
+    fun checkBookmarks(users: List<User>) {
+        _items.value = _items.value?.map {
+            val user = it as User
+            if (users.contains(user)) user.copy(isBookmark = true)
+            else user.copy(isBookmark = false)
         }
     }
 }

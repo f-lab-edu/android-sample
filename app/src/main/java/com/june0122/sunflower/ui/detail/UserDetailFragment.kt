@@ -49,6 +49,7 @@ class UserDetailFragment : Fragment() {
         binding.tvDescription.text = data.description
 
         val fab = binding.fabFavorite
+        if (data.isBookmark) fab.setImageResource(R.drawable.ic_bookmark_filled)
         fab.setOnClickListener {
             viewModel.setBookmark(data)
             Snackbar.make(fab, snackBarMessage, Snackbar.LENGTH_LONG).setAction("Action", null).show()
