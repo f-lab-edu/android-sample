@@ -22,14 +22,6 @@ class UserListViewHolder(binding: ItemUserListBinding, listener: UserClickListen
         }
         bookmarkButton.setOnClickListener {
             listener.onBookmarkClick(absoluteAdapterPosition)
-            if (bookmarkButton.isSelected) {
-                bookmarkButton.setImageResource(R.drawable.ic_bookmark)
-                bookmarkButton.isSelected = false
-            }
-            else {
-                bookmarkButton.setImageResource(R.drawable.ic_bookmark_filled)
-                bookmarkButton.isSelected = true
-            }
         }
     }
 
@@ -42,12 +34,7 @@ class UserListViewHolder(binding: ItemUserListBinding, listener: UserClickListen
         }
         plantNameTextView.text = user.name
 
-//        if (user.isBookmark) {
-//            bookmarkButton.setImageResource(R.drawable.ic_bookmark_filled)
-//            bookmarkButton.isSelected = true
-//        } else {
-//            bookmarkButton.setImageResource(R.drawable.ic_bookmark)
-//            bookmarkButton.isSelected = false
-//        }
+        if (user.isBookmark) bookmarkButton.setImageResource(R.drawable.ic_bookmark_filled)
+        else bookmarkButton.setImageResource(R.drawable.ic_bookmark)
     }
 }

@@ -1,5 +1,6 @@
 package com.june0122.sunflower.ui.main
 
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -23,6 +24,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserSharedViewModel @Inject constructor(private val repository: UserRepository) : ViewModel(), UserClickListener {
+
+    init {
+        viewModelScope.launch {
+            repository.allUsers.onEach { checkBookmarks(it) }.launchIn(viewModelScope)
+        }
+    }
 
     @Inject lateinit var githubService: GithubService
     @Inject lateinit var adapter: UserListAdapter
@@ -131,12 +138,10 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
     // repository의 insert() 메서드를 호출하는 래퍼 insert() 메서드 -> insert() 구현이 UI에서 캡슐화
     fun insert(user: User) = viewModelScope.launch {
         repository.insert(user)
-        repository.allUsers.onEach { checkBookmarks(it) }.launchIn(viewModelScope)
     }
 
     fun delete(user: User) = viewModelScope.launch {
         repository.delete(user)
-        repository.allUsers.onEach { checkBookmarks(it) }.launchIn(viewModelScope)
     }
 
     fun setBookmark(data: User) {
@@ -165,4 +170,35 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
             else user.copy(isBookmark = false)
         }
     }
+
+    fun checkBookmarkPage(bookmarkList: List<User>): List<User> {
+        Log.d("Check", "Bookmark size : ${bookmarkList.size}")
+
+        val tempList = bookmarkList.map { user ->
+            user.copy(isBookmark = true)
+        }
+
+        tempList.forEach { user ->
+            Log.d("Check", "${user.name} : ${user.isBookmark}")
+        }
+
+        return tempList
+    }
+
+    fun checkUserListPage(users: List<UserData>): List<UserData> {
+        val bookmarks = bookmarks.value ?: mutableListOf()
+
+        val tempList = users.map { userData ->
+            if (bookmarks.contains(userData) && userData is User) {
+                userData.copy(isBookmark = true)
+            }
+//            else if (!bookmarks.contains(userData) && userData is User) {
+//                userData.copy(isBookmark = false)
+//            }
+            else userData
+        }
+
+        return tempList
+    }
+
 }
