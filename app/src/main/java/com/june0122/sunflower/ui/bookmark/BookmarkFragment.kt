@@ -1,7 +1,6 @@
 package com.june0122.sunflower.ui.bookmark
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,9 +29,8 @@ class BookmarkFragment : Fragment() {
     private val clickListener by lazy {
         object : UserClickListener {
             override fun onUserClick(position: Int) {
-                val item = bookmarkAdapter[position]
                 val action = BookmarkFragmentDirections.detailAction(
-                    userData = item as User,
+                    position = position,
                     bookmarkStatus = true
                 )
                 findNavController().navigate(action)

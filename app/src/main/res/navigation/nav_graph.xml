@@ -21,8 +21,9 @@
         android:label="User Detail"
         tools:layout="@layout/fragment_user_detail" >
         <argument
-            android:name="userData"
-            app:argType="com.june0122.sunflower.data.entity.User" />
+            android:name="position"
+            android:defaultValue="-1"
+            app:argType="integer" />
         <argument
             android:name="bookmarkStatus"
             app:argType="boolean"

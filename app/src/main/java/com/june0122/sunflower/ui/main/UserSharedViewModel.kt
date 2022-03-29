@@ -1,7 +1,10 @@
 package com.june0122.sunflower.ui.main
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import com.june0122.sunflower.data.api.GithubService
@@ -14,25 +17,31 @@ import com.june0122.sunflower.ui.list.UserListAdapter
 import com.june0122.sunflower.utils.Event
 import com.june0122.sunflower.utils.UserClickListener
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import javax.inject.Inject
 
 @HiltViewModel
 class UserSharedViewModel @Inject constructor(private val repository: UserRepository) : ViewModel(), UserClickListener {
 
     init {
         viewModelScope.launch {
-            repository.allUsers.onEach { checkBookmarks(it) }.launchIn(viewModelScope)
+            repository.allUsers.onEach {
+                _bookmarks.value = it
+                checkBookmarks(it)
+            }.launchIn(viewModelScope)
         }
     }
 
-    @Inject lateinit var githubService: GithubService
-    @Inject lateinit var adapter: UserListAdapter
+    @Inject
+    lateinit var githubService: GithubService
+
+    @Inject
+    lateinit var adapter: UserListAdapter
 
     private val _items = MutableLiveData<List<UserData>>()
     val items: LiveData<List<UserData>> = _items
@@ -40,10 +49,14 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
     private val _statusMessage = MutableLiveData<Event<String>>()
     val statusMessage: LiveData<Event<String>> = _statusMessage
 
-    private val _showDetail = MutableLiveData<Event<User>>()
-    val showDetail: LiveData<Event<User>> = _showDetail
+    private val _showDetail = MutableLiveData<Event<Int>>()
+    val showDetail: LiveData<Event<Int>> = _showDetail
 
-    val bookmarks: LiveData<List<User>> = repository.allUsers.asLiveData()
+    private val _bookmarks = MutableLiveData<List<User>>()
+    val bookmarks: LiveData<List<User>> = _bookmarks
+
+    private val _currentItem = MutableLiveData<Event<User>>()
+    val currentItem: LiveData<Event<User>> = _currentItem
 
     private var currentPage = 1
     private var perPage = 20
@@ -51,9 +64,15 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
     private var progressPosition = 0
     private var isLoading = false
 
+
+    fun loadUserItem(position: Int) {
+        (_items.value?.get(position) as? User)?.let {
+            _currentItem.value = Event(it)
+        }
+    }
+
     override fun onUserClick(position: Int) {
-        val item = adapter[position] as User
-        _showDetail.value = Event(item)
+        _showDetail.value = Event(position)
     }
 
     override fun onUserLongClick(position: Int) {
@@ -61,8 +80,9 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
     }
 
     override fun onBookmarkClick(position: Int) {
-        val item = adapter[position] as User
-        setBookmark(item)
+        (_items.value?.get(position) as? User)?.let {
+            setBookmark(it)
+        }
     }
 
     fun loadNextPage(
@@ -102,12 +122,13 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
         })
     }
 
-    private fun updateUserList(users: Users) {
+    private fun updateUserList(users: Users) = viewModelScope.launch {
         if (adapter.itemCount != 0) deleteProgress(progressPosition)
         lastPage = (users.total_count / perPage) + 1
 
         val newData = users.items.map {
-            User(name = it.login, imageUrl = it.avatarUrl, description = "", isBookmark = false)
+            // isBookmark = false
+            User(name = it.login, imageUrl = it.avatarUrl, description = "", isBookmark = repository.matcherName(it.login))
         }
 
         _items.value = (_items.value?.toMutableList() ?: mutableListOf()).apply {
@@ -144,31 +165,25 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
         repository.delete(user)
     }
 
-    fun setBookmark(data: User) {
-        val bookmarks = bookmarks.value ?: mutableListOf()
-
-        if (data in bookmarks) {
+    fun setBookmark(data: User) = viewModelScope.launch {
+        if (repository.matcherName(data.name)) {
             delete(data)
         } else {
             insert(data)
         }
     }
 
-    fun checkBookmarks() {
-        val bookmarks = bookmarks.value ?: mutableListOf()
-        _items.value = _items.value?.map {
-            val user = it as User
-            if (bookmarks.contains(user)) user.copy(isBookmark = true)
-            else user.copy(isBookmark = false)
-        }
-    }
+    private fun checkBookmarks(users: List<User>) {
+//        Log.i("TEMP", "users $users")
+//        Log.i("TEMP", "items.value ${_items.value}")
 
-    fun checkBookmarks(users: List<User>) {
         _items.value = _items.value?.map {
             val user = it as User
-            if (users.contains(user)) user.copy(isBookmark = true)
+//            Log.e("TEMP", "user $user")
+            if (users.firstOrNull { it.name == user.name } != null) user.copy(isBookmark = true)
             else user.copy(isBookmark = false)
         }
+//        Log.i("TEMP", "update items.value ${_items.value}")
     }
 
     fun checkBookmarkPage(bookmarkList: List<User>): List<User> {
@@ -185,20 +200,20 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
         return tempList
     }
 
-    fun checkUserListPage(users: List<UserData>): List<UserData> {
-        val bookmarks = bookmarks.value ?: mutableListOf()
-
-        val tempList = users.map { userData ->
-            if (bookmarks.contains(userData) && userData is User) {
-                userData.copy(isBookmark = true)
-            }
-//            else if (!bookmarks.contains(userData) && userData is User) {
-//                userData.copy(isBookmark = false)
+//    fun checkUserListPage(users: List<UserData>): List<UserData> {
+//        val bookmarks = bookmarks.value ?: mutableListOf()
+//
+//        val tempList = users.map { userData ->
+//            if (bookmarks.contains(userData) && userData is User) {
+//                userData.copy(isBookmark = true)
 //            }
-            else userData
-        }
-
-        return tempList
-    }
+////            else if (!bookmarks.contains(userData) && userData is User) {
+////                userData.copy(isBookmark = false)
+////            }
+//            else userData
+//        }
+//
+//        return tempList
+//    }
 
 }

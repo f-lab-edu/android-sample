@@ -84,7 +84,6 @@ class UserListFragment : Fragment() {
 
         viewModel.items.observe(requireActivity()) { users ->
             if (users != null) {
-//                userListAdapter.updateUserListItems(viewModel.checkUserListPage(users))
                 userListAdapter.updateUserListItems(users)
             }
         }
@@ -93,8 +92,8 @@ class UserListFragment : Fragment() {
             event.getContentIfNotHandled()?.let { message -> context.toast(message) }
         }
 
-        viewModel.showDetail.observe(requireActivity(), EventObserver { userData ->
-            val action = UserListFragmentDirections.detailAction(userData)
+        viewModel.showDetail.observe(requireActivity(), EventObserver { position ->
+            val action = UserListFragmentDirections.detailAction(position)
             findNavController().navigate(action)
         })
 

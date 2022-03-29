@@ -7,7 +7,16 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDao {
     @Query("SELECT * FROM user_table")
-    fun getUsers(): Flow<List<User>>
+    fun flowUsers(): Flow<List<User>>
+
+    @Query("SELECT * FROM user_table")
+    suspend fun getUsers(): List<User>
+
+    @Query("SELECT COUNT(*) FROM user_table WHERE name LIKE (:name)")
+    suspend fun matcherName(name: String): Int
+
+    @Query("DELETE FROM user_table WHERE name LIKE (:name)")
+    suspend fun remove(name: String)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(user: User)
