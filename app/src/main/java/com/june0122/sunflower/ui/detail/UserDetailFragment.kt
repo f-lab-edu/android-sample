@@ -56,7 +56,7 @@ class UserDetailFragment : Fragment() {
         }
 
         viewModel.bookmarks.observe(requireActivity()) { bookmarks ->
-            snackBarMessage = if (data in bookmarks) {
+            snackBarMessage = if (bookmarks.firstOrNull { it.name == data.name } != null) {
                 fab.setImageResource(R.drawable.ic_bookmark_filled)
                 "Disable Bookmark"
             } else {
