@@ -1,7 +1,6 @@
 package com.june0122.sunflower.ui.bookmark
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,7 +44,6 @@ class BookmarkFragment : Fragment() {
             override fun onBookmarkClick(position: Int) {
                 val user = bookmarkAdapter[position] as User
                 viewModel.delete(user)
-//                viewModel.setBookmark(user)
             }
         }
     }
@@ -63,7 +61,7 @@ class BookmarkFragment : Fragment() {
         configureRecyclerView(layoutManager)
         viewModel.adapter = bookmarkAdapter
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
-            bookmarkAdapter.updateUserListItems(viewModel.checkBookmarkPage(bookmarks))
+            bookmarkAdapter.updateUserListItems(viewModel.getCurrentBookmarks(bookmarks))
         }
     }
 

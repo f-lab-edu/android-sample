@@ -78,15 +78,10 @@ class UserListFragment : Fragment() {
         setSpanSize(layoutManager)
         viewModel.adapter = userListAdapter
 
-        if (userListAdapter.itemCount == 0) {
-            viewModel.getUserList()
-        }
+        if (userListAdapter.itemCount == 0) viewModel.getUserList()
 
         viewModel.items.observe(requireActivity()) { users ->
-            if (users != null) {
-//                userListAdapter.updateUserListItems(viewModel.checkUserListPage(users))
-                userListAdapter.updateUserListItems(users)
-            }
+            if (users != null) userListAdapter.updateUserListItems(users)
         }
 
         viewModel.statusMessage.observe(requireActivity()) { event ->
@@ -97,7 +92,6 @@ class UserListFragment : Fragment() {
             val action = UserListFragmentDirections.detailAction(userData)
             findNavController().navigate(action)
         })
-
     }
 
     override fun onDestroyView() {
