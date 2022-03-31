@@ -49,13 +49,14 @@ class UserDetailFragment : Fragment() {
         binding.tvDescription.text = data.description
 
         val fab = binding.fabFavorite
+        if (data.isBookmark) fab.setImageResource(R.drawable.ic_bookmark_filled)
         fab.setOnClickListener {
             viewModel.setBookmark(data)
             Snackbar.make(fab, snackBarMessage, Snackbar.LENGTH_LONG).setAction("Action", null).show()
         }
 
         viewModel.bookmarks.observe(requireActivity()) { bookmarks ->
-            snackBarMessage = if (data in bookmarks) {
+            snackBarMessage = if (bookmarks.firstOrNull { it.name == data.name } != null) {
                 fab.setImageResource(R.drawable.ic_bookmark_filled)
                 "Disable Bookmark"
             } else {

@@ -1,11 +1,9 @@
 package com.june0122.sunflower.ui.list
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -13,7 +11,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.R
-import com.june0122.sunflower.data.entity.User
 import com.june0122.sunflower.databinding.FragmentUserListBinding
 import com.june0122.sunflower.ui.list.UserListAdapter.Companion.VIEW_TYPE_LOADING
 import com.june0122.sunflower.ui.main.UserSharedViewModel
@@ -81,24 +78,10 @@ class UserListFragment : Fragment() {
         setSpanSize(layoutManager)
         viewModel.adapter = userListAdapter
 
-        if (userListAdapter.itemCount == 0) {
-            viewModel.getUserList()
-        }
+        if (userListAdapter.itemCount == 0) viewModel.getUserList()
 
         viewModel.items.observe(requireActivity()) { users ->
-            users.forEachIndexed { position, user ->
-                val holder = recyclerView.findViewHolderForAdapterPosition(position)
-                val bookmarkButton = holder?.itemView?.findViewById<ImageView>(R.id.btn_bookmark)
-
-                if (user is User && user.isBookmark) {
-                    Log.d("Check", "${user.name} true")
-                    Log.d("Check", "--------")
-                    bookmarkButton?.setImageResource(R.drawable.ic_bookmark_filled)
-                } else {
-                    bookmarkButton?.setImageResource(R.drawable.ic_bookmark)
-                }
-            }
-            userListAdapter.updateUserListItems(users)
+            if (users != null) userListAdapter.updateUserListItems(users)
         }
 
         viewModel.statusMessage.observe(requireActivity()) { event ->
@@ -109,7 +92,6 @@ class UserListFragment : Fragment() {
             val action = UserListFragmentDirections.detailAction(userData)
             findNavController().navigate(action)
         })
-
     }
 
     override fun onDestroyView() {

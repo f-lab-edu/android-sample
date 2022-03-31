@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -45,7 +44,6 @@ class BookmarkFragment : Fragment() {
             override fun onBookmarkClick(position: Int) {
                 val user = bookmarkAdapter[position] as User
                 viewModel.delete(user)
-//                viewModel.setBookmark(user)
             }
         }
     }
@@ -63,12 +61,7 @@ class BookmarkFragment : Fragment() {
         configureRecyclerView(layoutManager)
         viewModel.adapter = bookmarkAdapter
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
-            bookmarks.forEachIndexed { position, user ->
-                val holder = recyclerView.findViewHolderForAdapterPosition(position)
-                val bookmarkButton = holder?.itemView?.findViewById<ImageView>(R.id.btn_bookmark)
-                bookmarkButton?.setImageResource(R.drawable.ic_bookmark_filled)
-            }
-            bookmarkAdapter.updateUserListItems(bookmarks)
+            bookmarkAdapter.updateUserListItems(viewModel.getCurrentBookmarks(bookmarks))
         }
     }
 
