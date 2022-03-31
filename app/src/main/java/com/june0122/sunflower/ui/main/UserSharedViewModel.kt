@@ -26,9 +26,7 @@ import javax.inject.Inject
 class UserSharedViewModel @Inject constructor(private val repository: UserRepository) : ViewModel(), UserClickListener {
 
     init {
-        viewModelScope.launch {
-            repository.allUsers.onEach { checkBookmarks(it) }.launchIn(viewModelScope)
-        }
+        repository.allUsers.onEach { checkBookmarks(it) }.launchIn(viewModelScope)
     }
 
     @Inject lateinit var githubService: GithubService
@@ -152,7 +150,7 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
     private fun checkBookmarks(bookmarks: List<User>) {
         _items.value = _items.value?.map { userData ->
             val user = userData as User
-            if (bookmarks.firstOrNull { it.name == user.name } != null ) user.copy(isBookmark = true)
+            if (bookmarks.firstOrNull { it.name == user.name } != null) user.copy(isBookmark = true)
             else user.copy(isBookmark = false)
         }
     }
