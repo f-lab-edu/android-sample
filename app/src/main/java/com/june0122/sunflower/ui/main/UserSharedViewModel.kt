@@ -83,21 +83,17 @@ class UserSharedViewModel @Inject constructor(private val repository: UserReposi
     fun getUserList() {
         isLoading = true
 
-        val userListCall: Call<Users> = githubService.getUserList(query = "june", perPage, currentPage)
-
-        userListCall.enqueue(object : Callback<Users> {
-            override fun onResponse(call: Call<Users>, response: Response<Users>) {
-                if (response.isSuccessful) {
-                    response.body()?.let { users -> updateUserList(users) }
-                } else if (response.code() == 403) {
-                    _statusMessage.value = Event("API rate limit exceeded")
+        viewModelScope.launch {
+            try {
+                githubService.getUserList(query = "june", perPage, currentPage).also { users ->
+                    updateUserList(users)
                 }
+//                val users = githubService.getUserList(query = "june", perPage, currentPage)
+//                updateUserList(users)
+            } catch (e: Exception) {
+                _statusMessage.value = Event("API rate limit exceeded")
             }
-
-            override fun onFailure(call: Call<Users>, t: Throwable) {
-                _statusMessage.value = Event(t.localizedMessage)
-            }
-        })
+        }
     }
 
     private fun updateUserList(users: Users) = viewModelScope.launch {
