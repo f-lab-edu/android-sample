@@ -81,7 +81,7 @@ class UserListFragment : Fragment() {
         if (userListAdapter.itemCount == 0) viewModel.getUserList()
 
         viewModel.items.observe(requireActivity()) { users ->
-            if (users != null) userListAdapter.updateUserListItems(users)
+            if (users != null) userListAdapter.submitList(users)
         }
 
         viewModel.statusMessage.observe(requireActivity()) { event ->
