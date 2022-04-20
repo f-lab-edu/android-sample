@@ -61,7 +61,7 @@ class BookmarkFragment : Fragment() {
         configureRecyclerView(layoutManager)
         viewModel.adapter = bookmarkAdapter
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
-            bookmarkAdapter.updateUserListItems(viewModel.getCurrentBookmarks(bookmarks))
+            bookmarkAdapter.submitList(viewModel.getCurrentBookmarks(bookmarks))
         }
     }
 

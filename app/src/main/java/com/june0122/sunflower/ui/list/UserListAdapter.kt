@@ -2,7 +2,7 @@ package com.june0122.sunflower.ui.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.june0122.sunflower.data.entity.Progress
 import com.june0122.sunflower.data.entity.User
@@ -12,14 +12,13 @@ import com.june0122.sunflower.databinding.ItemUserListBinding
 import com.june0122.sunflower.utils.UserClickListener
 import com.june0122.sunflower.utils.UserDiffCallback
 
-class UserListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val userList = mutableListOf<UserData>()
+class UserListAdapter : ListAdapter<UserData, RecyclerView.ViewHolder>(UserDiffCallback()) {
     lateinit var listener: UserClickListener
 
-    operator fun get(position: Int): UserData = userList[position]
+    operator fun get(position: Int): UserData = currentList[position]
 
     override fun getItemViewType(position: Int): Int {
-        return when (userList[position]) {
+        return when (currentList[position]) {
             is Progress -> VIEW_TYPE_LOADING
             else -> VIEW_TYPE_ITEM
         }
@@ -40,21 +39,11 @@ class UserListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    override fun getItemCount(): Int = userList.size
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val data = userList[holder.absoluteAdapterPosition]) {
+        when (val data = currentList[holder.absoluteAdapterPosition]) {
             is User -> if (holder is UserListViewHolder) holder.bind(data)
             is Progress -> {}
         }
-    }
-
-    fun updateUserListItems(items: List<UserData>) {
-        val diffCallback = UserDiffCallback(userList, items)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-        userList.clear()
-        userList.addAll(items)
-        diffResult.dispatchUpdatesTo(this)
     }
 
     companion object {
