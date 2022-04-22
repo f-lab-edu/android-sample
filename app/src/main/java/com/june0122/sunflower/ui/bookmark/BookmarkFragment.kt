@@ -21,8 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class BookmarkFragment : Fragment() {
-    private var _binding: FragmentBookmarkBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentBookmarkBinding
     private val bookmarkAdapter = UserListAdapter()
     private val viewModel: UserSharedViewModel by activityViewModels()
     private val layoutManager by lazy { GridLayoutManager(context, UserListFragment.DEFAULT_SPAN_COUNT) }
@@ -50,9 +49,8 @@ class BookmarkFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return FragmentBookmarkBinding.inflate(inflater, container, false).also {
-            _binding = it
-        }.root
+        binding = FragmentBookmarkBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,7 +66,6 @@ class BookmarkFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         recyclerView.layoutManager = null
-        _binding = null
     }
 
     private fun configureRecyclerView(layoutManager: GridLayoutManager) {
