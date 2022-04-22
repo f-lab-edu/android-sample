@@ -22,8 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class UserListFragment : Fragment() {
-    private var _binding: FragmentUserListBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentUserListBinding
     private val userListAdapter: UserListAdapter = UserListAdapter()
     private val viewModel: UserSharedViewModel by activityViewModels()
     private val layoutManager by lazy { GridLayoutManager(context, DEFAULT_SPAN_COUNT) }
@@ -66,9 +65,8 @@ class UserListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         setHasOptionsMenu(true)
-        return FragmentUserListBinding.inflate(inflater, container, false).also {
-            _binding = it
-        }.root
+        binding = FragmentUserListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -98,7 +96,6 @@ class UserListFragment : Fragment() {
         super.onDestroyView()
         recyclerView.layoutManager = null
         recyclerView.removeOnScrollListener(scrollListener)
-        _binding = null
     }
 
     private fun setSpanSize(layoutManager: GridLayoutManager) {
